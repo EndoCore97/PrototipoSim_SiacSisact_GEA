@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador SIAC Único - Perfil 1: Microsoft Edge</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reseteo básico y configuración general */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: #f4f4f4; font-size: 11px; color: #333; overflow-x: hidden; }
+
+        /* Barra IE */
+        .ie-warning-bar { background-color: #3b3b3b; color: white; display: flex; align-items: center; justify-content: space-between; padding: 6px 16px; font-size: 12px; z-index: 10; }
+        .ie-warning-left { display: flex; align-items: center; gap: 15px; }
+        .btn-edge { background-color: #0078d4; color: white; border: none; padding: 4px 12px; border-radius: 2px; font-weight: bold; cursor: pointer; }
+        .ie-warning-right a { color: #66b4ff; text-decoration: none; margin-right: 15px; }
+        .btn-close { background: none; border: none; color: white; font-size: 16px; cursor: pointer; }
+
+        /* Encabezado Principal */
+        .main-header { background: #da291c; color: white; padding: 8px 20px; display: flex; justify-content: space-between; align-items: stretch; height: 85px; position: relative; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo-container { width: 55px; height: 55px; background: radial-gradient(circle at 30% 30%, #ff6b6b, #c00); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.4); box-shadow: 0 0 10px rgba(255,255,255,0.5); font-weight: bold; font-size: 15px; font-style: italic; letter-spacing: -1px; }
+        .title-container h1 { font-size: 20px; font-weight: bold; letter-spacing: 1px; margin-bottom: 2px; }
+        .title-container h2 { font-size: 10px; font-weight: bold; opacity: 0.9; }
+
+        .header-right { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; font-size: 11px; }
+        .user-info { display: flex; align-items: center; gap: 10px; font-weight: bold; }
+        .session-info { font-weight: bold; margin-top: 5px; }
+        .search-area { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
+        .servicio-cliente { display: flex; align-items: center; gap: 5px; font-weight: bold; }
+
+        /* Dropdown Búsqueda */
+        .custom-dropdown { position: relative; display: inline-block; background: white; height: 24px; border-right: 1px solid #ccc; }
+        .dropdown-btn { background-color: #ffffff; color: #333; padding: 0 8px; font-size: 11px; border: none; height: 100%; cursor: pointer; display: flex; align-items: center; gap: 5px; min-width: 140px; justify-content: space-between; }
+        .dropdown-content { display: none; position: absolute; background-color: white; min-width: 220px; box-shadow: 0px 4px 8px rgba(0,0,0,0.2); z-index: 100; top: 100%; left: 0; border: 1px solid #ddd; }
+        .dropdown-content a { color: #333; padding: 6px 10px; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 11px; }
+        .dropdown-content a:hover { background-color: #f1f1f1; }
+        .show { display: block; }
+
+        .search-controls { display: flex; height: 24px; background: white; border: 1px solid #999; }
+        .search-controls input { width: 180px; border: none; padding: 0 8px; outline: none; font-size: 11px; }
+        .btn-search { background-color: #3b82f6; color: white; border: none; width: 30px; cursor: pointer; font-size: 12px; }
+        
+        .action-buttons { display: flex; height: 24px; gap: 1px; background: #ccc; border: 1px solid #999; margin-left: 5px; }
+        .action-buttons button { background-color: white; border: none; width: 28px; color: #555; cursor: pointer; position: relative; }
+        .notification-badge { position: absolute; top: -5px; right: -5px; background: #3b82f6; color: white; border-radius: 50%; width: 14px; height: 14px; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* Barra de Navegación */
+        .nav-bar { background-color: #333; color: white; padding: 0 15px; display: flex; gap: 20px; font-size: 11px; font-weight: bold; border-bottom: 2px solid #555; height: 28px; align-items: center; z-index: 90;}
+        .nav-item { position: relative; height: 100%; display: flex; align-items: center; cursor: pointer; }
+        .nav-item:hover { color: #ccc; background-color: #222; }
+        .nav-dropdown { display: none; position: absolute; top: 100%; left: 0; background-color: #333; box-shadow: 0px 4px 8px rgba(0,0,0,0.5); z-index: 500; min-width: 250px; border: 1px solid #222; }
+        .nav-item:hover > .nav-dropdown { display: block; }
+        .nav-dropdown a { display: block; color: white; padding: 8px 12px; text-decoration: none; font-weight: normal; border-bottom: 1px solid #444; }
+        .nav-dropdown a:hover { background-color: #444; color: #fff; }
+        .dropdown-submenu { position: relative; }
+        .dropdown-submenu > a::after { content: "►"; float: right; font-size: 9px; color: #aaa; }
+        .dropdown-submenu-content { display: none; position: absolute; top: 0; left: 100%; background-color: #333; border: 1px solid #222; box-shadow: 0px 4px 8px rgba(0,0,0,0.5); min-width: 250px; z-index: 501; }
+        .dropdown-submenu:hover > .dropdown-submenu-content { display: block; }
+        .dropdown-submenu-content a { color: white; }
+        .dropdown-submenu-content a:hover { background-color: #444; }
+
+        /* Contenedor Principal Fluyente */
+        .main-wrapper { display: none; padding: 10px; padding-bottom: 50px; background-color: #f4f4f4;} 
+        .content-area { display: flex; gap: 10px; }
+        .empty-background { height: calc(100vh - 145px); background-color: #f4f4f4; }
+
+        /* Estilos de Paneles y Tablas (Vista Principal) */
+        .panel-block { background: white; border: 1px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 10px; }
+        .panel-header { background: #999; color: white; padding: 6px 10px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        .left-panel { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table td { padding: 4px 6px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .data-table tr td:first-child { font-weight: bold; width: 130px; color: #333; }
+        .data-table tr td:nth-child(2) { color: #555; }
+        .link-blue { color: #0066cc; text-decoration: none; }
+        .link-blue:hover { text-decoration: underline; }
+        .text-red { color: #da291c; font-weight: bold; }
+        .text-normal { color: #555; font-weight: normal; }
+        .btn-dots { background: #d0e8ff; border: 1px solid #8cb4d6; color: #0066cc; width: 22px; height: 16px; border-radius: 2px; cursor: pointer; text-align: center; font-weight: bold; font-size: 9px; line-height: 1; }
+        .btn-action-small { background: #e0e0e0; border: 1px solid #ccc; padding: 3px 8px; font-size: 10px; cursor: pointer; border-radius: 2px; margin-right: 3px;}
+
+        /* Panel Derecho y Pestañas */
+        .right-panel { flex-grow: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+        .alert-banner { background: #eaf4fc; color: #0055cc; padding: 6px 10px; font-weight: bold; border: 1px solid #b3d4f0; text-transform: uppercase; }
+        .tabs-container { display: flex; background: #a9a9a9; border: 1px solid #ccc; border-bottom: none; }
+        .tab { padding: 8px 12px; cursor: pointer; color: white; display: flex; align-items: center; gap: 5px; border-right: 1px solid #ccc; font-weight: bold; }
+        .tab.active { background: white; color: #333; border-top: 2px solid #d61818; }
+        .tab-content { background: white; border: 1px solid #ccc; padding: 12px; display: flex; flex-direction: column; }
+        .tab-pane { display: none; flex-direction: column; }
+        .tab-pane.active { display: flex; }
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .action-row { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; padding-top: 10px; border-top: 1px solid #eee; }
+        .btn-action { padding: 4px 10px; background: #d0e8ff; border: 1px solid #8cb4d6; color: #0055cc; cursor: pointer; font-weight: bold; border-radius: 2px; }
+        .btn-outline { padding: 4px 10px; background: white; border: 1px solid #ccc; color: #333; cursor: pointer; font-weight: bold; border-radius: 2px; }
+        
+        .edc-container { margin-top: 5px; width: 100%; overflow-x: auto; }
+        .edc-table { width: 100%; border-collapse: collapse; font-size: 10px; background: white; border: 1px solid #ccc; min-width: 800px; }
+        .edc-table thead { background: #eee; border-bottom: 1px solid #ccc;}
+        .edc-table th { text-align: center; padding: 6px 4px; border: 1px solid #ccc; color: #333; font-weight: bold; }
+        .edc-table td { padding: 4px; border: 1px solid #ccc; text-align: center; color: #333; }
+        .edc-summary { display: flex; flex-direction: column; align-items: center; margin-top: 10px; font-weight: bold; font-size: 12px; gap: 5px; }
+        
+        .inst-block { border: 1px solid #ccc; background: white; margin-top: 10px; }
+        .inst-header-red { background: #da291c; color: white; padding: 6px 12px; font-weight: bold; font-size: 11px; }
+        .inst-body { padding: 12px; }
+        .legend-row { display: flex; gap: 15px; margin-bottom: 8px; flex-wrap: wrap;}
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .color-box { width: 10px; height: 10px; }
+        .desc-box { background: #eaf4fc; border: 1px solid #a2c8e8; padding: 10px; color: #333; line-height: 1.3; font-size: 10px;}
+
+        /* Barra Inferior Fija */
+        .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #f8f8f8; border-top: 1px solid #ddd; border-bottom: 8px solid #ebebeb; display: flex; padding: 3px 8px; gap: 15px; align-items: center; z-index: 100; height: 35px; }
+        .bottom-item { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #777; }
+        .bottom-icon { font-size: 11px; color: #888; }
+        .bottom-text { font-size: 10px; font-weight: bold; line-height: 1.1; text-align: left; }
+
+        /* Modales Globales */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
+        .modal-window { background: white; border: 1px solid #555; box-shadow: 0 4px 15px rgba(0,0,0,0.4); display: flex; flex-direction: column; max-height: 90vh; }
+        .simulated-ie-bar { background: #d0e8ff; padding: 4px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; border-bottom: 1px solid #999; }
+        .modal-header-red { background: #da291c; color: white; padding: 8px 15px; font-weight: bold; font-size: 14px; }
+        .modal-content-area { padding: 15px; overflow-y: auto; background: #f4f4f4; flex-grow: 1; }
+        .modal-table { width: 100%; border-collapse: collapse; font-size: 11px; background: white; border: 1px solid #ccc; margin-bottom: 10px;}
+        .modal-table th { background: #eee; padding: 6px; border: 1px solid #ccc; text-align: left; color: #333; }
+        .modal-table td { padding: 6px; border: 1px solid #ccc; text-align: left; color: #333; }
+        .modal-footer { text-align: right; padding: 10px; background: #e5e5e5; border-top: 1px solid #ccc; display: flex; justify-content: flex-end; gap: 10px;}
+        .btn-blue { background: #0066cc; color: white; border: none; padding: 6px 15px; cursor: pointer; font-weight: bold; border-radius: 2px; }
+        
+        .accordion-header { background: #eee; padding: 6px 10px; font-weight: bold; border: 1px solid #ccc; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-top: 5px; }
+        .accordion-content { background: white; border: 1px solid #ccc; border-top: none; padding: 10px; }
+
+        /* VISTAS SECUNDARIAS CLÁSICAS */
+        .secondary-view { display: none; position: absolute; top: 0; left: 0; width: 100%; min-height: 100%; background: #fff; z-index: 2000; flex-direction: column; padding-bottom: 40px;}
+        .c-wrapper { border: 2px solid #6a8cc7; margin: 10px; background: white; }
+        .c-header { background: #6a8cc7; color: white; font-weight: bold; font-size: 12px; padding: 6px 8px; text-align: center; }
+        .c-subheader { background: #e6eef5; padding: 4px 8px; border-bottom: 1px solid #6a8cc7; display: flex; font-size: 11px; color:#333; font-weight: bold;}
+        .c-section { border-bottom: 1px solid #6a8cc7; padding: 8px 15px; }
+        .c-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .c-table td { padding: 4px; vertical-align: middle; }
+        .c-label { font-weight: bold; color: #000080; }
+        .c-label-title { font-weight: bold; color: #000080; font-size: 11px; margin-bottom: 8px; margin-top: 5px; display: inline-block; width: 100%; border-bottom: 1px solid #6a8cc7;}
+        .c-input { border: 1px solid #7f9db9; padding: 2px 4px; font-size: 11px; background: white; color: #333;}
+        .c-input[disabled] { background: #ece9d8; color: #aca899; }
+        .mp-footer { position: fixed; bottom: 0; width: 100%; background: #da291c; color: white; padding: 5px 15px; display: flex; justify-content: space-between; font-weight: bold; font-size: 10px; z-index: 100;}
+        .layout-plan { display: flex; gap: 10px; padding: 10px; }
+        .layout-plan-left { width: 75%; border: 2px solid #6a8cc7; }
+        .layout-plan-right { width: 25%; border: 2px solid #6a8cc7; }
+
+        /* TABS INTERACCION */
+        .int-tab { padding: 4px 12px; font-weight: bold; color: #aca899; border-right: 1px solid #6a8cc7; cursor: pointer; }
+        .int-tab.active { background: #6a8cc7; color: white; }
+        .int-pane table th { background: #e6eef5; color: #000080; border: 1px solid #6a8cc7; text-align: center; padding: 4px; font-weight:bold;}
+        .int-pane table td { border: 1px solid #ccc; padding: 4px; text-align: center; }
+        .int-pane a { color: #0066cc; text-decoration: none;} .int-pane a:hover{text-decoration: underline;}
+    </style>
+</head>
+<body>
+
+<div id="mainSiacInterface">
+    <div class="ie-warning-bar">
+        <div class="ie-warning-left"><span>Estás en modo Internet Explorer. La mayoría de las páginas funcionan mejor en Microsoft Edge.</span><button class="btn-edge">Abrir en Microsoft Edge</button></div>
+        <div class="ie-warning-right"><a href="#">Más información</a><button class="btn-close"><i class="fas fa-times"></i></button></div>
+    </div>
+    <header class="main-header">
+        <div class="header-left">
+            <div class="logo-container">Claro-</div>
+            <div class="title-container"><h1>Simulador SIAC ÚNICO</h1><h2>SOLO USO DE PRACTICAS FORMACION</h2></div>
+        </div>
+        <div class="header-right">
+            <div class="user-info"><i class="fas fa-user"></i> E871348* - Usuario de Prueba <i class="fas fa-caret-down"></i><i class="fas fa-bars" style="margin-left: 10px;"></i> <i class="fas fa-list"></i> 105</div>
+            <div class="session-info">Session ID: <span id="session-id">20260531190538355018</span> &nbsp;&nbsp; 31/05/2026 10:48:05 p.m.</div>
+            <div class="search-area">
+                <div class="servicio-cliente"><i class="fas fa-cog"></i> Servicio al Cliente</div>
+                <div class="search-controls">
+                    <div class="custom-dropdown">
+                        <button class="dropdown-btn" id="dropBtn"><span id="selected-text">Teléfono</span> <i class="fas fa-caret-down"></i></button>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a href="#" onclick="window.updateSelection('Cuenta')"><i class="fas fa-id-card"></i> Cuenta</a>
+                            <a href="#" onclick="window.updateSelection('Customer Id')"><i class="fas fa-chess-king"></i> Customer Id</a>
+                            <a href="#" onclick="window.updateSelection('ICCID (Número de Chip)')"><i class="fas fa-microchip"></i> ICCID (Número de Chip)</a>
+                            <a href="#" onclick="window.updateSelection('Nombres')"><i class="fas fa-bars-staggered"></i> Nombres</a>
+                            <a href="#" onclick="window.updateSelection('N° Documento Identidad')"><i class="fas fa-eye"></i> N° Documento Identidad</a>
+                            <a href="#" onclick="window.updateSelection('Número de Recibo')"><i class="fas fa-book"></i> Número de Recibo</a>
+                            <a href="#" onclick="window.updateSelection('Razón Social')"><i class="fas fa-th-large"></i> Razón Social</a>
+                            <a href="#" onclick="window.updateSelection('Teléfono')"><i class="fas fa-phone"></i> Teléfono</a>
+                        </div>
+                    </div>
+                    <input type="text" id="searchInput" value="" autocomplete="off" />
+                    <button type="button" class="btn-search" id="btnSearch"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="action-buttons"><button type="button" title="Limpiar"><i class="fas fa-eraser"></i></button><button type="button" title="Menú"><i class="fas fa-bars"></i></button><button type="button" title="Notificaciones"><i class="fas fa-bell"></i><span class="notification-badge">1</span></button></div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav-bar">
+        <div class="nav-item">Transacciones por Servicio +
+            <div class="nav-dropdown">
+                <a href="#" onclick="return false;">Activación / Desactivación de Servicios</a>
+                <a href="#" onclick="return false;">Activar/Desactivar Límite de Consumo</a>
+                <a href="#" onclick="return false;">Cambio / Traslado de Número</a>
+                <div class="dropdown-submenu"><a href="#" onclick="return false;">Claro Club</a>
+                    <div class="dropdown-submenu-content">
+                        <a href="#" onclick="return false;">Consulta Productos Canjeados</a>
+                        <a href="#" onclick="return false;">Consultar Saldo/Canje</a>
+                        <a href="#" onclick="return false;">Transferencia ClaroClub-Bonus</a>
+                    </div>
+                </div>
+                <a href="#" onclick="return false;">Compra Paquete de Datos</a>
+                <a href="#" onclick="return false;">Fidelización</a>
+                <a href="#" onclick="window.abrirMigracionPrepago()">Migraciones a Prepago</a>
+                <a href="#" onclick="window.abrirMigracionPlan()">Migración de Plan</a>
+                <a href="#" onclick="return false;">Retención/Cancelación</a>
+                <div class="dropdown-submenu"><a href="#" onclick="return false;">Servicio Técnico</a>
+                    <div class="dropdown-submenu-content"><a href="#" onclick="return false;">Validar Cotización de OST</a></div>
+                </div>
+                <div class="dropdown-submenu"><a href="#" onclick="return false;">Servicios VAS Promociones</a>
+                    <div class="dropdown-submenu-content">
+                        <a href="#" onclick="return false;">Activación/Desactivación de BlackList</a>
+                        <a href="#" onclick="return false;">Desuscripción de Servicios VAS</a>
+                    </div>
+                </div>
+                <a href="#" onclick="return false;">Suspensión / Reactivación</a>
+                <a href="#" onclick="return false;">Triaciones</a>
+            </div>
+        </div>
+        <div class="nav-item">Transacciones por Cuenta +
+            <div class="nav-dropdown">
+                <a href="#" onclick="return false;">Afiliación Débito Automático NP</a>
+                <a href="#" onclick="return false;">Cambio de Ciclo de Facturación</a>
+                <a href="#" onclick="return false;">Comprobantes Electrónicos</a>
+                <a href="#" onclick="return false;">Consultar Saldo/Cargo</a>
+                <a href="#" onclick="return false;">Desafiliación Débito Automático</a>
+                <a href="#" onclick="return false;">Desafiliación Débito Automático NP</a>
+                <a href="#" onclick="return false;">Duplicado de Factura</a>
+                <a href="#" onclick="return false;">Facturación</a>
+                <a href="#" onclick="return false;">Recibo Telefónico por Correo Electrónico</a>
+            </div>
+        </div>
+        <div class="nav-item">Gestión de Casos +
+            <div class="nav-dropdown">
+                <a href="#" onclick="return false;">Búsqueda de Casos</a>
+                <a href="#" onclick="return false;">Colas</a>
+                <a href="#" onclick="return false;">Gestión de No Clientes</a>
+                <a href="#" onclick="return false;">Gestión Interacción</a>
+                <a href="#" onclick="return false;">Mi Bandeja</a>
+            </div>
+        </div>
+        <div class="nav-item">Enlaces +
+            <div class="nav-dropdown">
+                <a href="#" onclick="return false;">Busca Promociones</a>
+                <a href="#" onclick="return false;">Retenciones</a>
+            </div>
+        </div>
+        <div class="nav-item">Consultas +
+            <div class="nav-dropdown">
+                <a href="#" onclick="return false;">Consulta de Equipos</a>
+                <a href="#" onclick="return false;">Consulta Estado de Equipo</a>
+                <a href="#" onclick="return false;">Consulta OCC</a>
+                <a href="#" onclick="return false;">Consulta Recargos Control</a>
+                <a href="#" onclick="return false;">Descartes AT</a>
+                <a href="#" onclick="return false;">Históricos de Paquetes</a>
+                <a href="#" onclick="return false;">Transacciones Programadas</a>
+            </div>
+        </div>
+        <div class="nav-item">Retención o Fidelización +
+            <div class="nav-dropdown"><a href="#" onclick="return false;">Gestión</a></div>
+        </div>
+    </nav>
+
+    <div class="empty-background" id="emptyState"></div>
+
+    <main class="main-wrapper" id="mainContent">
+        <div class="content-area">
+            
+            <div class="left-panel">
+                <div class="panel-block">
+                    <div class="panel-header"><i class="fas fa-user"></i> Datos del Cliente - Postpago</div>
+                    <table class="data-table">
+                        <tr><td>Cliente</td><td>HECTOR ADRIAN PACHERRE TORRES</td><td style="width:25px;"><button type="button" class="btn-dots" onclick="window.openModal('modalDatosCliente')">...</button></td></tr>
+                        <tr><td>Contacto</td><td colspan="2">HECTOR ADRIAN PACHERRE TORRES</td></tr>
+                        <tr><td>DNI/RUC</td><td colspan="2">74174478</td></tr>
+                        <tr><td>Cuenta</td><td colspan="2">1.93754631</td></tr>
+                        <tr><td>Producto</td><td colspan="2">PostPago - Telefonía Móvil</td></tr>
+                        <tr><td>Tipo Documento</td><td colspan="2">DNI</td></tr>
+                        <tr><td>Nro Documento</td><td colspan="2">74174478</td></tr>
+                        <tr><td>Representante Legal</td><td colspan="2">HECTOR ADRIAN PACHERRE TORRES</td></tr>
+                        <tr><td>ID</td><td colspan="2"><a href="#" onclick="return false;" class="link-blue">47165793</a></td></tr>
+                        <tr><td>Tel. Referencia 1</td><td colspan="2"><a href="#" onclick="return false;" class="link-blue">01966310655</a></td></tr>
+                        <tr><td>Email</td><td colspan="2">ENDOCORE5@GMAIL.COM</td></tr>
+                        <tr><td>Segmento</td><td colspan="2"><a href="#" onclick="return false;" class="link-blue" id="dato-segmento-1">C</a></td></tr>
+                        <tr><td>Full Claro Emp.</td><td colspan="2"></td></tr>
+                        <tr><td>Full Claro</td><td colspan="2" class="text-red" id="dato-full-claro-left">Ya es Full Claro</td></tr>
+                    </table>
+                    <div id="dato-app-miclaro" style="padding: 6px; font-weight: bold; background: #fafafa; border-bottom: 1px solid #eee; font-size: 10px;">APP MI CLARO: <input type="checkbox" checked disabled> Versión: <span style="font-weight:normal">6.4.3</span> Fecha última transacción: <span style="font-weight:normal">30/05/2026</span></div>
+                    <div style="padding: 6px; font-weight: bold; background: #fafafa; font-size: 10px;">Aceptó Contenido Publicitario: <span style="font-weight:normal; margin-left: 10px;">NO</span> <button type="button" class="btn-dots" style="float:right;" onclick="window.openModal('modalGenericoVacio')">...</button></div>
+                </div>
+
+                <div class="panel-block">
+                    <div class="panel-header"><i class="fas fa-user"></i> Domicilio de Facturación</div>
+                    <table class="data-table">
+                        <tr><td>Calle</td><td colspan="2">CASN S/N MZ N LT 15</td></tr>
+                        <tr><td>Urb. / Ref.</td><td colspan="2">OTR 22 SEC 3 PARQUE</td></tr>
+                        <tr><td>Código Postal</td><td colspan="2">L42</td></tr>
+                        <tr><td>Departamento</td><td colspan="2">LIMA</td></tr>
+                        <tr><td>Provincia</td><td colspan="2">LIMA</td></tr>
+                        <tr><td>Distrito</td><td>VILLA EL SALVADOR</td><td style="width:25px;"><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="alert-banner">VISUALIZACIÓN DE PREGUNTAS DE SEGURIDAD PARA CLIENTES NO MIGRADOS - CONSUMER</div>
+                <div style="display: flex; flex-direction: column; flex-grow: 1;">
+                    <div class="tabs-container">
+                        <div class="tab active" data-target="tab-cuenta"><i class="fas fa-th-large"></i> Datos de la Cuenta</div>
+                        <div class="tab" data-target="tab-servicio"><i class="fas fa-phone"></i> Datos del Servicio</div>
+                        <div class="tab" data-target="tab-facturacion"><i class="fas fa-list"></i> Datos de Facturación</div>
+                        <div class="tab" data-target="tab-estado"><i class="fas fa-dollar-sign"></i> $ Estado de Cuenta</div>
+                    </div>
+                    
+                    <div class="tab-content">
+                        <div id="tab-cuenta" class="tab-pane active">
+                            <div class="grid-2col">
+                                <table class="data-table" style="border:none;"><tr><td style="width:140px;">Tipo Cliente</td><td>Consumer</td><td></td></tr><tr><td>Origen</td><td>MIGRADO A ONE</td><td></td></tr><tr><td>Ciclo Fact.</td><td id="dato-ciclo-fact">11</td><td></td></tr><tr><td>Estado Cuenta</td><td>Activo</td><td></td></tr><tr><td>Fecha Activación</td><td>10/09/2021</td><td></td></tr><tr><td>Total Línea/Servicios</td><td>1</td><td></td></tr><tr><td>Bolsa compartida</td><td></td><td></td></tr><tr><td>Total SubCuentas</td><td>1</td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr><tr><td>Consultor</td><td></td><td></td></tr></table>
+                                <table class="data-table" style="border:none;"><tr><td style="width:140px;">Segmento</td><td id="dato-segmento-2">C</td><td></td></tr><tr><td>Código del Pago</td><td>47165793</td><td></td></tr><tr><td>Responsable Pago</td><td><input type="checkbox" checked disabled></td><td></td></tr><tr><td>Límite Crédito Abonado</td><td>178.88</td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr><tr><td>Pin y Puk</td><td></td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr><tr><td>Saldo Límite Crédito</td><td>138.98</td><td></td></tr></table>
+                            </div>
+                            <div class="action-row"><button type="button" class="btn-action">Garantía</button><button type="button" class="btn-action">Acuerdos</button><button type="button" class="btn-action">Relación de Planes</button><button type="button" class="btn-action">Contrato Suspendido</button></div>
+                        </div>
+
+                        <div id="tab-servicio" class="tab-pane">
+                            <div class="grid-2col">
+                                <table class="data-table" style="border:none;">
+                                    <tr><td style="width:140px;">Teléfono</td><td class="text-red">966310655</td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr>
+                                    <tr><td>Fecha Activación Servicio</td><td>10/09/2021 12:20:36 AM</td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr>
+                                    <tr><td>Plan</td><td id="dato-plan">Max 39.90</td><td><button type="button" class="btn-dots" onclick="window.openModal('modalHistorialPlan')">...</button></td></tr>
+                                    <tr><td>Plazo Contrato</td><td>18 MESES CONTRATO EQ.</td><td></td></tr>
+                                    <tr><td>Estado Servicio</td><td id="dato-estado-servicio">Activo</td><td></td></tr>
+                                    <tr><td>ICCID</td><td>8951101729006066185</td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr>
+                                    <tr><td>Campaña</td><td>CAMPANIA REGULAR-F10</td><td></td></tr>
+                                    <tr><td>Tipo de SIM</td><td>eSIM (Virtual)</td><td></td></tr>
+                                    <tr><td>Límite de Consumo</td><td>Consumo Exacto</td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr>
+                                    <tr><td>Días Activos</td><td></td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr>
+                                    <tr><td>Vendedor</td><td>CLARA EMILIA TAFUR AGUILAR</td><td></td></tr>
+                                    <tr><td>Degradación :</td><td>No aplica</td><td></td></tr>
+                                </table>
+                                <table class="data-table" style="border:none;">
+                                    <tr><td style="width:140px;">Full Claro Emp.</td><td style="width: 150px;"></td><td>Realizó Cambio de<br>Número &nbsp;&nbsp;&nbsp; No</td></tr>
+                                    <tr><td>Full Claro</td><td class="text-red" id="dato-full-claro-right">Elige bono movil</td><td></td></tr>
+                                    <tr><td>Tipo de Plan</td><td>CONTROL</td><td></td></tr>
+                                    <tr><td>Motivo Estado Inicial</td><td id="dato-motivo-inicial">Port-In</td><td></td></tr>
+                                    <tr><td>Ultimo Motivo Estado</td><td><span id="dato-motivo-estado">DESBLOQUEO POR REPOSICION DE CHIP</span></td><td><button type="button" class="btn-dots" onclick="window.openModal('modalHistorialLinea')">...</button></td></tr>
+                                    <tr><td>Fecha Ultimo Motivo Estado</td><td>06/02/2026 11:55:40 p.m.</td><td></td></tr>
+                                    <tr><td>IMSI</td><td>716101700066618</td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr>
+                                    <tr><td>Tecnología</td><td></td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr>
+                                    <tr><td>IMR</td><td></td><td></td></tr>
+                                    <tr><td>Portabilidad</td><td><span style="color:#da291c; font-weight:bold;">Portado PORT-IN</span></td><td><button type="button" class="btn-dots" onclick="window.openModal('modalPortabilidad')">...</button></td></tr>
+                                    <tr><td>Comparte Megas :</td><td>SI</td><td></td></tr>
+                                </table>
+                            </div>
+                            <div class="action-row"><button type="button" class="btn-action" onclick="window.openModal('modalServiciosComerciales')">Servicios</button><button type="button" class="btn-action">Peticiones</button><button type="button" class="btn-action">Anotaciones</button><button type="button" class="btn-action">Prestamo/Alq</button><button type="button" class="btn-action">Acuerdo Línea</button><button type="button" class="btn-action">Triación</button><button type="button" class="btn-action">Consumo/Saldo</button><button type="button" class="btn-action">Pin y Puk</button><button type="button" class="btn-action" onclick="window.openModal('modalGenericoVacio')">Hist.Acciones</button><button type="button" class="btn-action">Claro TV</button></div>
+                        </div>
+
+                        <div id="tab-facturacion" class="tab-pane">
+                            <div class="grid-2col">
+                                <div>
+                                    <table class="data-table" style="border:none;"><tr><td style="width:140px;">N° Ult. Factura</td><td>S002-5205822020</td><td></td></tr><tr><td>Monto (con IGV)</td><td id="dato-monto-igv">39.90</td><td></td></tr><tr><td>Cargo Fijo</td><td id="dato-cargo-fijo">39.90</td><td></td></tr><tr><td>Tráfico Local Consumo</td><td>0.00</td><td></td></tr><tr><td>LDI</td><td>0.00</td><td></td></tr><tr><td>Servicios Adicionales</td><td>0.00</td><td></td></tr><tr><td>Deuda Cliente</td><td></td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr><tr><td>Histórico de Entrega</td><td></td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr></table>
+                                    <div style="margin-top: 10px;"><button type="button" class="btn-action-small">Ver Factura</button><button type="button" class="btn-action-small" onclick="window.openModal('modalHistFacturas')">Hist. Facturas</button><button type="button" class="btn-action-small">Hist. HR</button></div>
+                                </div>
+                                <div>
+                                    <table class="data-table" style="border:none;"><tr><td style="width:140px;">Fecha Emisión</td><td id="dato-fecha-emision">11/05/2026</td><td></td></tr><tr><td>Fecha Vencimiento</td><td id="dato-fecha-venc">29/05/2026</td><td></td></tr><tr><td>Tráfico Local</td><td>0.00</td><td></td></tr><tr><td>LDN</td><td>0.00</td><td></td></tr><tr><td>Roaming</td><td>0.00</td><td></td></tr><tr><td>Otros Cargos y Abonos</td><td>0.00</td><td></td></tr><tr><td>Recibo por Correo Electrónico</td><td></td><td><button type="button" class="btn-dots" onclick="window.openModal('modalGenericoVacio')">...</button></td></tr></table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="tab-estado" class="tab-pane">
+                            <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 11px;"><span>Forma de Pago <span style="font-weight:normal; margin-left:10px;">Contado</span></span><span>Monto de Disputa <span style="font-weight:normal; margin-left:10px;">36.45</span></span><span>Deuda Castigada de Cliente <span style="font-weight:normal; margin-left:10px;">0.00</span></span></div>
+                            <div style="margin-bottom: 5px;">Filtrar: <input type="text" style="width: 100px; border:1px solid #ccc; margin-left: 5px;"></div>
+                            <div class="edc-container">
+                                <table class="edc-table" id="tabla-edc">
+                                    <thead><tr><th>Nro</th><th>Detalle</th><th>Documento</th><th>Registro de<br>Ajuste</th><th>Descripción<br>Pago</th><th>Fec<br>Emisión</th><th>Fec<br>Venc</th><th>Cargo</th><th>Abono</th><th>Importe<br>Pendiente</th><th>Reclamo/<br>Anulado</th><th>Saldo</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>159</td><td style="color:#000;">PAGO</td><td style="color:#000;">79812271-1</td><td></td><td>OLC Pago - INTERB...</td><td>01/09/2025<br>10:11:45 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>160</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-64175453-2</a></td><td>Realizar<br>Ajuste</td><td>Facturacion Ciclo <span class="dyn-ciclo">11</span></td><td>11/10/2025<br>12:00:00 a.m.</td><td>29/10/2025</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>161</td><td style="color:#000;">PAGO</td><td style="color:#000;">81522569-1</td><td></td><td>OLC Pago - BCP...</td><td>01/10/2025<br>14:33:15 p.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>162</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-69158550-1</a></td><td>Realizar<br>Ajuste</td><td>Facturacion Ciclo <span class="dyn-ciclo">11</span></td><td>11/11/2025<br>12:00:00 a.m.</td><td>29/11/2025</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>163</td><td style="color:#000;">PAGO</td><td style="color:#000;">82561118-2</td><td></td><td>OLC Pago - VISA...</td><td>01/11/2025<br>09:50:30 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>164</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-71647737-1</a></td><td>Realizar<br>Ajuste</td><td>Facturacion Ciclo <span class="dyn-ciclo">11</span></td><td>11/12/2025<br>12:00:00 a.m.</td><td>29/12/2025</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>165</td><td style="color:#000;">PAGO</td><td style="color:#000;">85298463-1</td><td></td><td>OLC Pago - BANCO...</td><td>01/12/2025<br>08:14:22 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>166</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-79012271-1</a></td><td>Realizar<br>Ajuste</td><td>Facturacion Ciclo <span class="dyn-ciclo">11</span></td><td>11/01/2026<br>12:00:00 a.m.</td><td>29/01/2026</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>167</td><td style="color:#000;">PAGO</td><td style="color:#000;">98895564070</td><td></td><td>OLC Pago - INTERB...</td><td>01/01/2026<br>11:10:05 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>168</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-8121670318</a></td><td>Realizar<br>Ajuste</td><td>Facturacion Ciclo <span class="dyn-ciclo">11</span></td><td>11/02/2026<br>12:00:00 a.m.</td><td>28/02/2026</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>169</td><td style="color:#000;">PAGO</td><td style="color:#000;">102861928-1</td><td></td><td>OLC Pago - BCP...</td><td>01/02/2026<br>09:42:31 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>170</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-8201453200</a></td><td>Realizar<br>Ajuste</td><td>Facturacion Ciclo <span class="dyn-ciclo">11</span></td><td>11/03/2026<br>12:00:00 a.m.</td><td>29/03/2026</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>171</td><td style="color:#000;">PAGO</td><td style="color:#000;">100213306-2</td><td></td><td>OLC Pago - VISA...</td><td>01/03/2026<br>10:15:12 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>172</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-8276602239</a></td><td>Realizar<br>Ajuste</td><td>Facturacion Ciclo <span class="dyn-ciclo">11</span></td><td>11/04/2026<br>12:00:00 a.m.</td><td>29/04/2026</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>173</td><td style="color:#000;">PAGO</td><td style="color:#000;">97503885-1</td><td></td><td>OLC Pago - BANCO...</td><td>01/04/2026<br>12:23:37 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                                        <tr><td>174</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-5205822020</a></td><td>Realizar<br>Ajuste</td><td>Facturacion Ciclo <span class="dyn-ciclo">11</span></td><td><span id="edc-fecha-emi" class="modal-femi-amp">11/05/2026</span><br>12:00:00 a.m.</td><td><span id="edc-fecha-venc" class="modal-fven-amp">29/05/2026</span></td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>39.90</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="edc-summary"><div>Deuda No Vencida: <span class="deuda-vencida-val" style="font-weight:normal; color:#0066cc;">0.00</span></div><div>Deuda Vencida: <span class="deuda-vencida-val" style="font-weight:normal; color:#0066cc;">0.00</span></div><div style="font-size: 13px;">Deuda Total: <span class="deuda-total-val" style="font-weight:normal; color:#0066cc;">0.00</span></div></div>
+                            <div class="action-row" style="justify-content: center; border-top: none;"><button type="button" class="btn-outline" onclick="window.openModal('modalEstadoCuentaAmpliado')">Ampliar E.C.</button><button type="button" class="btn-outline">Compromiso de Pago</button><button type="button" class="btn-outline">Estado Cuenta LDI</button><button type="button" class="btn-outline">Consulta Deuda por Nro.Documento</button><button type="button" class="btn-outline">Consulta Cuotas de Equipo</button></div>
+                            <div class="action-row" style="justify-content: center; padding-top: 0; border-top: none;"><button type="button" class="btn-outline">Consulta de Cobranzas Diferidas</button><button type="button" class="btn-outline">Cuota de Refinanciamiento</button><button type="button" class="btn-outline">Consulta Cuotas de Accesorio</button><button type="button" class="btn-outline">Resumen Estado de Cuenta</button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="inst-block">
+                    <div class="inst-header-red">Instantaneas</div>
+                    <div class="inst-body"><div class="legend-row"><div class="legend-item"><span class="color-box" style="background:#da291c;"></span> Importancia Alta</div><div class="legend-item"><span class="color-box" style="background:#228b22;"></span> Importancia Media Alta</div></div><div class="desc-box"><strong>Descripción</strong><br>Alarma 1: 05/05/2026 al 31/05/2026. INFORMALE A TU CLIENTE: por ser FULL CLARO tiene mas beneficios SIN PAGAR MAS.</div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div class="bottom-bar">
+        <i class="fas fa-chevron-left arrow-icon"></i>
+        <div style="display:flex; gap: 15px; flex-grow: 1;">
+            <div class="bottom-item" onclick="window.abrirInteraccionView()"><i class="fas fa-th-large bottom-icon"></i><div class="bottom-text">Interacción</div></div>
+            <div class="bottom-item"><i class="fas fa-th-large bottom-icon"></i><div class="bottom-text">Consulta<br>HLR</div></div>
+            <div class="bottom-item"><i class="fas fa-th-large bottom-icon"></i><div class="bottom-text">Migracion<br>Plan</div></div>
+            <div class="bottom-item"><i class="fas fa-th-large bottom-icon"></i><div class="bottom-text">Triacion</div></div>
+            <div class="bottom-item"><i class="fas fa-th-large bottom-icon"></i><div class="bottom-text">Descartes<br>AT</div></div>
+        </div>
+        <div style="display:flex; align-items:center; gap: 10px;"><span style="font-size: 10px; color: #555;"><i class="fas fa-search-plus"></i> 100%</span><i class="fas fa-chevron-right arrow-icon"></i></div>
+    </div>
+</div> 
+<div id="migracionPrepagoView" class="secondary-view">
+    <header class="main-header" style="height: 60px; padding: 5px 20px;">
+        <div class="header-left">
+            <div class="logo-container" style="width: 40px; height: 40px; font-size: 12px;">Claro-</div>
+            <div class="title-container"><h1 style="font-size: 16px;">SIAC ÚNICO</h1><h2 style="font-size: 9px;">SISTEMA INTEGRADO DE ATENCIÓN A CLIENTES</h2></div>
+        </div>
+        <div style="display:flex; align-items:center; color:white; font-size:14px; margin-top:-10px;">NODO 15</div>
+    </header>
+    <div class="c-wrapper">
+        <div class="c-header">Migración a Prepago</div>
+        <div class="c-subheader"><span style="color:#000080;">Nro Teléfono :</span> 966310655, <span style="color:#000080; margin-left:10px;">Tipo de Cliente:</span> Consumer ,<span style="color:#000080; margin-left:10px;">Contacto :</span> HECTOR ADRIAN PACHERRE TORRES</div>
+        
+        <div class="c-section">
+            <div class="c-label-title">Datos del Cliente</div>
+            <table class="c-table">
+                <tr><td class="c-label" style="width: 180px;">Cliente:</td><td>HECTOR ADRIAN PACHERRE TORRES</td><td class="c-label" style="width: 150px;">DNI/RUC:</td><td>74174478</td></tr>
+                <tr><td class="c-label">Plan Actual:</td><td><span id="mpre-plan-actual">Max 39.90</span></td><td class="c-label">Fecha de Activación:</td><td>10/09/2021 12:20:36 AM</td></tr>
+                <tr><td class="c-label">Ciclo de Facturación:</td><td><span class="dyn-ciclo">11</span></td><td class="c-label">Tipo de Acuerdo:</td><td>18 MESES CONTRATO EQ</td></tr>
+                <tr><td class="c-label">Límite de Crédito:</td><td>178.88</td><td class="c-label">Estado de Línea:</td><td>Activo</td></tr>
+                <tr><td class="c-label">Monto de Última Facturación IGV:</td><td><span id="mpre-monto-ultima">39.90</span></td><td class="c-label">Fecha de Vencimiento:</td><td><span id="mpre-fecha-venc">29/05/2026</span></td></tr>
+                <tr><td class="c-label">Representante Legal:</td><td colspan="3">HECTOR ADRIAN PACHERRE TORRES</td></tr>
+            </table>
+        </div>
+
+        <div class="c-section">
+            <div class="c-label-title">Datos de la Transacción</div>
+            <table class="c-table">
+                <tr><td class="c-label" style="width: 180px;">Tipo de Migración:</td><td colspan="4"><select class="c-input" style="width: 150px;" disabled><option>Postpago a Prepago</option></select></td></tr>
+                <tr>
+                    <td class="c-label">Nuevo Plan:</td><td style="width: 160px;"><select class="c-input" style="width: 150px;"><option>-- Seleccionar --</option><option>Plan Prepagado</option><option>Prepago TUN</option><option>Prepago TUN BAM</option></select></td>
+                    <td class="c-label" style="width: 110px;">Idioma Contratado:</td><td><select class="c-input" style="width: 100px;"><option>Español</option></select></td><td style="text-align: center;"><button type="button" class="btn-outline" style="color:#0066cc;">Protección de datos</button></td>
+                </tr>
+                <tr>
+                    <td class="c-label">Costo:</td><td><input type="text" class="c-input" value="0.00" style="width: 80px;" disabled></td><td class="c-label">Fideliza Costo:</td><td><input type="checkbox"></td><td style="text-align: center;"><span class="c-label">Total Costo a Cobrar: </span><input type="text" class="c-input" value="0.00" style="width: 80px;" disabled></td>
+                </tr>
+                <tr><td class="c-label">Fecha de Aplicación:</td><td colspan="4"><input type="text" class="c-input" style="width: 100px;" id="mpre-fecha-app"> <button type="button" class="btn-action-small" onclick="window.abrirErrorFecha()"><i class="far fa-calendar-alt"></i></button></td></tr>
+            </table>
+        </div>
+
+        <div class="c-section">
+            <table class="c-table">
+                <tr><td class="c-label" style="width: 180px;">Reintegro APADECE:</td><td style="width: 160px;"><input type="text" class="c-input" value="1882.22" style="width: 80px;" disabled></td><td class="c-label" style="width: 150px;">Fideliza APADECE:</td><td><input type="checkbox"></td></tr>
+                <tr><td class="c-label">Monto Fidelización APADECE:</td><td><input type="text" class="c-input" value="0" style="width: 80px;" disabled></td><td class="c-label">Total APADECE a cobrar:</td><td><input type="text" class="c-input" value="1882.22" style="width: 80px;" disabled></td></tr>
+                <tr><td class="c-label">OCC <input type="checkbox" checked></td><td colspan="3"></td></tr>
+            </table>
+        </div>
+
+        <div class="c-section" style="border-bottom: none;">
+            <table class="c-table">
+                <tr><td class="c-label" style="width: 180px;">OCC para cobro SERC:</td><td style="width: 160px; font-weight:bold; color:#000080;">NO APLICA</td><td class="c-label" style="width: 100px;">Cobro SERC:</td><td><input type="text" class="c-input" value="0.00" style="width: 80px;" disabled></td></tr>
+                <tr><td class="c-label">CAC/DAC:</td><td colspan="3"><span style="font-weight:bold; color:#000;">Servicio al Cliente</span></td></tr>
+                <tr><td class="c-label" style="vertical-align: top;">Notas :</td><td colspan="3"><textarea class="c-input" style="width:100%; max-width:600px; height:50px; resize:none;"></textarea></td></tr>
+            </table>
+            <div style="text-align: center; margin-top: 15px; margin-bottom: 5px;">
+                <button type="button" class="btn-outline" style="min-width: 80px; color:#aaa;" disabled>Constancia</button>
+                <button type="button" class="btn-outline" style="min-width: 80px;" onclick="window.abrirInfoGeneral()">Grabar</button>
+                <button type="button" class="btn-outline" style="min-width: 80px;" onclick="window.closeMigracionPrepago()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <div class="mp-footer"><div><i class="fas fa-user"></i> Usuario: E871348* - Usuario de Prueba</div><div><i class="far fa-calendar-alt"></i> Fecha: lunes, 01 de junio de 2026, 01:06:14 a.m.</div></div>
+</div>
+
+<div id="migracionPlanView" class="secondary-view">
+    <header class="main-header" style="height: 50px; padding: 5px 20px;">
+        <div class="header-left">
+            <div class="logo-container" style="width: 35px; height: 35px; font-size: 10px;">Claro-</div>
+            <div class="title-container"><h1 style="font-size: 14px;">SIAC ÚNICO</h1><h2 style="font-size: 8px;">SISTEMA INTEGRADO DE ATENCIÓN A CLIENTES</h2></div>
+        </div>
+        <div style="display:flex; align-items:center; color:white; font-size:11px;">NODO 01</div>
+    </header>
+
+    <div class="layout-plan">
+        <div class="layout-plan-left">
+            <div class="c-header">Migración de Plan</div>
+            <div class="c-subheader"><span style="color:#000080; margin-right:5px;">Nro Teléfono :</span> 966310655, <span style="color:#000080; margin-left:10px; margin-right:5px;">Tipo de Cliente:</span> Consumer ,<span style="color:#000080; margin-left:10px; margin-right:5px;">Contacto :</span> HECTOR ADRIAN PACHERRE TORRES</div>
+            
+            <div class="c-section">
+                <div class="c-label-title">Datos del Cliente</div>
+                <table class="c-table">
+                    <tr><td class="c-label" style="width: 130px;">Cliente:</td><td>HECTOR ADRIAN PACHERRE TORRES</td><td class="c-label" style="width: 130px;">DNI/RUC:</td><td>74174478</td></tr>
+                    <tr><td class="c-label">Plan Actual:</td><td><span id="mplan-plan-actual">Max 39.90</span></td><td class="c-label">Fecha de Activación:</td><td>10/09/2021 12:20:36 AM</td></tr>
+                    <tr><td class="c-label">Ciclo de Facturación:</td><td><span class="dyn-ciclo">11</span></td><td class="c-label">Tipo de Acuerdo:</td><td>18 MESES CONTRATO EQ</td></tr>
+                    <tr><td class="c-label">Límite de Crédito:</td><td>178.88</td><td class="c-label">Estado de Línea:</td><td>Activo</td></tr>
+                    <tr><td class="c-label">Representante Legal:</td><td>HECTOR ADRIAN PACHERRE TORRES</td><td class="c-label">Fecha de Vencimiento:</td><td><span id="mplan-fecha-venc">29/05/2026</span></td></tr>
+                    <tr><td class="c-label">Límite de Consumo:</td><td>Consumo Exacto</td><td class="c-label">Bolsa Soles Adicionales:</td><td>S/. 0.00</td></tr>
+                    <tr><td class="c-label">Usuario/Carta Poder <input type="checkbox"></td><td colspan="3"></td></tr>
+                </table>
+            </div>
+
+            <div class="c-section">
+                <div class="c-label-title">Datos del Plan</div>
+                <table class="c-table">
+                    <tr>
+                        <td class="c-label" style="width: 130px;">Seleccione Nuevo Plan:</td><td style="width: 60px;"><button type="button" class="btn-action-small" onclick="window.abrirModalPlanes()">...</button></td>
+                        <td class="c-label" style="width: 120px;">Fecha de Aplicación:</td><td><input type="text" class="c-input" style="width: 80px;" id="mplan-fecha-app"> <i class="far fa-calendar-alt"></i></td>
+                    </tr>
+                    <tr id="row-nuevo-plan" style="display:none;">
+                        <td class="c-label">Nuevo Plan:</td><td><span id="mplan-nuevo-plan-text" style="color: #da291c; font-weight: bold; font-size:12px;"></span></td>
+                        <td class="c-label" style="text-align: right; padding-right:5px;">Cargo Fijo Total del Plan (Sin IGV):</td><td><input type="text" class="c-input" id="mplan-cf-sinigv" style="width: 60px;" disabled></td>
+                    </tr>
+                    <tr id="row-cargo-fijo" style="display:none;">
+                        <td colspan="2"></td>
+                        <td class="c-label" style="text-align: right; padding-right:5px;">Cargo Fijo Total del Plan (Con IGV):</td><td><input type="text" class="c-input" id="mplan-cf-conigv" style="width: 60px;" disabled></td>
+                    </tr>
+                </table>
+                <div style="border-top: 1px solid #6a8cc7; padding-top: 5px; margin-top: 10px;">
+                    <div class="c-label-title" style="border:none;">Límites de consumo</div>
+                    <table class="c-table">
+                        <tr>
+                            <td style="width: 200px;"><label style="cursor:pointer; color:#000080; font-weight:bold;"><input type="radio" name="lim_mplan"> Consumo Abierto</label></td>
+                            <td style="width: 200px;"><label style="cursor:pointer; color:#000080; font-weight:bold;"><input type="radio" name="lim_mplan" id="radio-limite-plan" checked> Con Límite de Consumo</label></td>
+                            <td><select class="c-input" id="dropdown-limite-plan" style="width: 120px; color:#333;"><option selected>-- Seleccionar --</option><option>Consumo Adicional</option><option>Consumo Exacto</option></select></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="c-section">
+                <table class="c-table">
+                    <tr><td class="c-label" style="width: 130px;">Reintegro APADECE:</td><td style="width: 120px;"><input type="text" class="c-input" id="mplan-reintegro-apadece" value="1882.22" style="width:90px; background:#e0e0e0;" disabled></td><td></td><td></td></tr>
+                    <tr><td class="c-label">Penalidad Calculada:</td><td><input type="text" class="c-input" id="mplan-penalidad" value="" style="width:90px; background:#e0e0e0;" disabled></td><td class="c-label" style="width: 130px;">Fideliza Penalidad:</td><td><input type="checkbox"> &nbsp;&nbsp;&nbsp;&nbsp; <span class="c-label">Cobro Penalidad No Aplica:</span> <input type="checkbox"></td></tr>
+                    <tr><td class="c-label">Monto Fidelización Penalidad:</td><td><input type="text" class="c-input" style="width:90px; background:#e0e0e0;" disabled></td><td class="c-label">Total Penalidad a cobrar:</td><td><input type="text" class="c-input" id="mplan-total-penalidad" value="" style="width:90px; background:#e0e0e0;" disabled></td></tr>
+                    <tr><td class="c-label">OCC</td><td colspan="3"><input type="checkbox" checked></td></tr>
+                </table>
+            </div>
+
+            <div class="c-section" style="border-bottom:none;">
+                <table class="c-table">
+                    <tr><td class="c-label" style="width: 100px;">Enviar por Email:</td><td><input type="checkbox" checked> <input type="text" class="c-input" value="ENDOCORE5@GMAIL.COM" style="width:180px;"></td></tr>
+                    <tr>
+                        <td class="c-label">CAC/DAC:</td>
+                        <td>
+                            <select class="c-input" style="width:180px;">
+                                <option>-- Seleccionar --</option><option>ACTIVACIONES</option><option>ATENCIÓN DIGITAL</option><option>ATENCIÓN PREMIUM</option><option>ATENCIÓN TELEFÓNICA</option><option>ATP COORDINADOR</option><option>BACK OFFICE ATC</option><option>Back office Soporte ATP</option><option>CAC AREQUIPA</option><option>CAC AVIACION</option><option>CAC AYACUCHO</option><option>CAC BEGONIAS</option><option>CAC CAJAMARCA 1</option><option>CAC CENTRO CIVICO</option><option>CAC CERRO COLORADO</option><option>CAC CHICLAYO</option><option>CAC CHIMBOTE</option><option>CAC CHORRILLOS</option><option>CAC CUSCO</option><option>CAC CUSCO REAL PLAZA</option><option>PA TUMBES FUTURAMA</option><option>PA UCAYALI INVERSIONES M</option><option>PA URUBAMBA COBERTURA</option><option>PA VENTANILLA DELIMA N.</option><option>PA VES PC TELECOM</option><option>PA VIRU M&A COMUNICACION</option><option>PA VMT PC TELECOM</option><option>PA YAULI INVERSIONES SOL</option><option>PA ZARUMILLA MAHADI</option><option>PASAN ANT DE PUTINA YAEM</option><option>PREVENTIVA FIJA</option><option>PROCESOS ATC</option><option>PROGRAMACIONES</option><option>RECUPERACIÓN DE CLIENTES</option><option>RETENCIÓN</option><option>SOLUCION DE RECLAMOS</option><option>TELEVENTAS</option><option>TIENDA VIRTUAL</option><option>UP CROSS SELLING</option><option>VERTICALES ADECCO</option><option>VERTICALES OVERALL</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td class="c-label" style="vertical-align: top;">Notas :</td><td><textarea class="c-input" style="width:100%; height:40px; resize:none;"></textarea></td></tr>
+                </table>
+                <div style="text-align: center; margin-top: 15px; margin-bottom: 5px;">
+                    <button type="button" class="btn-outline" style="min-width: 80px;" onclick="window.abrirConfirmacionGrabarPlan()">Grabar</button>
+                    <button type="button" class="btn-outline" style="min-width: 80px;" onclick="window.closeMigracionPlan()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layout-plan-right">
+            <div class="c-header" style="text-align:left; background:white; color:#000080; text-decoration:underline;">Reglas de Atención:</div>
+            <div style="padding: 10px; font-size:10px;">
+                <div style="color:#da291c; margin-bottom: 10px; font-weight:bold; font-size:12px;">NO OLVIDAR: EN UN CAMBIO DE PLAN FORZOSO, MODIFICAR LA FECHA DE EJECUCIÓN.</div>
+                - Identificarse con nombres y apellidos<br>- Brindar código de atención<br>- Brindar plazo de atención.<br>SN: Tipo Cambio de Plan: Escenario Cambio de Plan<br><br><strong>Importante:</strong> Seleccionar planes vigente de acuerdo a la Oferta Comercial.
+            </div>
+        </div>
+    </div>
+    <div class="mp-footer"><div><i class="fas fa-user"></i> Usuario: E871348* - Usuario de Prueba</div><div><i class="far fa-calendar-alt"></i> Fecha: lunes, 01 de junio de 2026, 01:06:14 a.m.</div></div>
+</div>
+
+<div id="interaccionView" class="secondary-view">
+    <header class="main-header" style="height: 50px; padding: 5px 20px;">
+        <div class="header-left">
+            <div class="logo-container" style="width: 35px; height: 35px; font-size: 10px;">Claro-</div>
+            <div class="title-container"><h1 style="font-size: 14px;">SIAC ÚNICO</h1><h2 style="font-size: 8px;">SISTEMA INTEGRADO DE ATENCIÓN A CLIENTES</h2></div>
+        </div>
+        <div style="display:flex; align-items:center; color:white; font-size:11px;">NODO 09</div>
+    </header>
+    
+    <div style="padding: 10px;">
+        <div style="display:flex; align-items:center; border-bottom:1px solid #6a8cc7; background:#e6eef5;">
+            <div class="int-tab active" onclick="window.switchInteraccionTab(this, 'int-info')">Informaciones/Variaciones</div>
+            <div class="int-tab" onclick="window.switchInteraccionTab(this, 'int-prob')">Problemas</div>
+            <div class="int-tab" onclick="window.switchInteraccionTab(this, 'int-sar')">SAR</div>
+            <div style="flex-grow:1; display:flex; justify-content:center; gap:20px;">
+                <a href="#" onclick="return false;">Teléfono Asociados</a>
+                <a href="#" onclick="return false;">Ver Todas Interacciones</a>
+            </div>
+        </div>
+        
+        <div style="border:1px solid #6a8cc7; border-top:none; height:450px; background:white; overflow-y:auto; overflow-x:hidden;">
+            <div id="int-info" class="int-pane" style="display:block;">
+                <table class="c-table">
+                    <thead><tr><th>Id Inter</th><th>Fecha Inicio</th><th>Tipificación</th><th>Login agente</th><th>Nombre agente</th><th>Apellido agente</th><th>Id. Caso</th><th>User proc.</th></tr></thead>
+                    <tbody>
+                        <tr><td><a href="#" onclick="return false;">4381377290</a></td><td>31/05/2026 03:17:01 p.m.</td><td>POSTPAGO - VARIACIÓN - FACTURACIÓN/COBRANZAS - PAGO DE RECIBOS</td><td>USRAPPS</td><td>USRAPPS</td><td>USRAPPS</td><td></td><td>USRAPPS</td></tr>
+                        <tr><td><a href="#" onclick="return false;">4380104636</a></td><td>29/05/2026 10:54:23 p.m.</td><td>POSTPAGO - VARIACIÓN - DESISTIMIENTO DE CANCELACIÓN</td><td>E8721607</td><td>KEVIN</td><td>RAMIREZ</td><td></td><td>USRSIAC...</td></tr>
+                        <tr><td><a href="#" onclick="return false;">4380103535</a></td><td>29/05/2026 10:51:03 p.m.</td><td>POSTPAGO - INFORMACIÓN - INFORMACIÓN GENERAL - OFERTA COMERCIAL - RETENCIÓN</td><td>E8719672</td><td>ANGEL</td><td>VALLEJOS</td><td></td><td>USRGCAPE...</td></tr>
+                        <tr><td><a href="#" onclick="return false;">4380101128</a></td><td>29/05/2026 10:43:10 p.m.</td><td>POSTPAGO - INFORMACIÓN - INFORMACIÓN GENERAL - POSTVENTA</td><td>E8719672</td><td>ANGEL</td><td>VALLEJOS</td><td></td><td>USRSIAC...</td></tr>
+                        <tr><td><a href="#" onclick="return false;">4380097208</a></td><td>29/05/2026 10:31:23 p.m.</td><td>POSTPAGO - INFORMACIÓN - TRANSFERENCIAS - RETENCIONES</td><td>E8720828</td><td>VICKY</td><td>CANSINO</td><td></td><td>USRSIAC...</td></tr>
+                        <tr><td><a href="#" onclick="return false;">4380095717</a></td><td>29/05/2026 10:27:14 p.m.</td><td>POSTPAGO - INFORMACIÓN - TRANSFERENCIAS - RETENCIONES</td><td>E8720828</td><td>VICKY</td><td>CANSINO</td><td></td><td>USRSIAC...</td></tr>
+                        <tr><td><a href="#" onclick="return false;">4380086193</a></td><td>29/05/2026 10:02:22 p.m.</td><td>POSTPAGO - INFORMACIÓN - TRANSFERENCIAS - RETENCIONES</td><td>E8722052</td><td>KATHERINE</td><td>TARAZONA</td><td></td><td>USRSIAC...</td></tr>
+                        <tr><td><a href="#" onclick="return false;">4358230754</a></td><td>05/05/2026 09:55:29 p.m.</td><td>POSTPAGO - VARIACIÓN - OPERATIVA INTERNA - NOTIFICACIONES COMERCIALES</td><td>USRSIACP</td><td>USRSIACP</td><td>USRSIACP</td><td></td><td>USRSIACP</td></tr>
+                        <tr><td><a href="#" onclick="return false;">4354346391</a></td><td>01/05/2026 04:24:29 p.m.</td><td>POSTPAGO - VARIACIÓN - FACTURACIÓN/COBRANZAS - PAGO DE RECIBOS</td><td>USRAPPS</td><td>USRAPPS</td><td>USRAPPS</td><td></td><td>USRAPPS</td></tr>
+                        <tr><td><a href="#" onclick="return false;">4328674786</a></td><td>01/04/2026 12:23:38 a.m.</td><td>POSTPAGO - VARIACIÓN - FACTURACIÓN/COBRANZAS - PAGO DE RECIBOS</td><td>USRAPPS</td><td>USRAPPS</td><td>USRAPPS</td><td></td><td>USRAPPS</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="int-prob" class="int-pane" style="display:none;">
+                <table class="c-table">
+                    <thead><tr><th>Id Caso</th><th>Tipificación</th><th>Fecha Creación</th><th>Login agente</th><th>Nombre agente</th><th>Apellido agente</th><th>Origen</th><th>Estado</th><th>Nro rep</th></tr></thead>
+                    <tbody>
+                        <tr><td><a href="#" onclick="return false;">0056846702</a></td><td>POSTPAGO - VARIACIÓN - RETENCIÓN - GESTIÓN BACK OFFICE</td><td>06/10/2025 05:35:49 p.m.</td><td>E8171462</td><td>GRACIELA</td><td>SANCA</td><td>Teléfono</td><td>CERRADO</td><td></td></tr>
+                        <tr><td><a href="#" onclick="return false;">0055543988</a></td><td>POSTPAGO - VARIACION - RETENCIÓN - GESTIÓN BACK OFFICE</td><td>26/06/2025 01:47:53 p.m.</td><td>E8713482</td><td>HECTOR</td><td>PACHERRE</td><td>Teléfono</td><td>CERRADO</td><td></td></tr>
+                        <tr><td><a href="#" onclick="return false;">0052401289</a></td><td>POSTPAGO - VARIACION - RETENCIÓN - GESTIÓN BACK OFFICE</td><td>27/09/2024 05:11:28 p.m.</td><td>E8158951</td><td>DIEGO</td><td>FLORES</td><td>Teléfono</td><td>CERRADO</td><td></td></tr>
+                        <tr><td><a href="#" onclick="return false;">0051307864</a></td><td>POSTPAGO - VARIACION - FALLAS TÉCNICAS - CASO - FALLA TÉCNICA</td><td>17/07/2024 08:58:13 p.m.</td><td>E8826134</td><td>MIRTHA</td><td>AGURTO</td><td>Teléfono</td><td>CERRADO</td><td></td></tr>
+                        <tr><td><a href="#" onclick="return false;">0043424525</a></td><td>POSTPAGO - VARIACION - RETENCIÓN - GESTIÓN BACK OFFICE</td><td>24/02/2023 03:22:59 p.m.</td><td>E8839518</td><td>GREGORIO</td><td>PEREZ</td><td>Teléfono</td><td>CERRADO</td><td></td></tr>
+                        <tr><td><a href="#" onclick="return false;">0042383496</a></td><td>POSTPAGO - PROBLEMA - FACTURACIÓN</td><td>28/12/2022 07:02:16 p.m.</td><td>C13984</td><td>CESAR</td><td>RIOJA</td><td>Teléfono</td><td>CONCLUIDO</td><td></td></tr>
+                        <tr><td><a href="#" onclick="return false;">0041429040</a></td><td>POSTPAGO - VARIACION - FACTURACIÓN/COBRANZAS - AJUSTE NC - MANUAL</td><td>29/10/2022 09:30:17 a.m.</td><td>E8008873</td><td>JASMINCARMEN</td><td>FONSECA</td><td>Teléfono</td><td>SOLUCIONADO</td><td></td></tr>
+                        <tr><td><a href="#" onclick="return false;">0040982545</a></td><td>POSTPAGO - VARIACION - FACTURACIÓN/COBRANZAS - AJUSTE NC - MANUAL</td><td>01/10/2022 02:28:21 p.m.</td><td>E8008868</td><td>LAURA</td><td>CONTRERAS</td><td>Teléfono</td><td>SOLUCIONADO</td><td></td></tr>
+                        <tr><td><a href="#" onclick="return false;">0040463102</a></td><td>POSTPAGO - VARIACION - FACTURACIÓN/COBRANZAS - AJUSTE NC - MANUAL</td><td>29/08/2022 04:24:49 p.m.</td><td>E8008868</td><td>LAURA</td><td>CONTRERAS</td><td>Teléfono</td><td>SOLUCIONADO</td><td></td></tr>
+                        <tr><td><a href="#" onclick="return false;">0040421228</a></td><td>POSTPAGO - VARIACION - RETENCIÓN - PREVENTIVA</td><td>26/08/2022 03:09:08 p.m.</td><td>E8015914</td><td>HENRY</td><td>RAMIREZ</td><td>Teléfono</td><td>CERRADO</td><td></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="int-sar" class="int-pane" style="display:none;">
+                <table class="c-table">
+                    <thead><tr><th>Nro SAR</th><th>Tipificación</th><th>Fecha Creación</th><th>Login agente</th><th>Nombre agente</th><th>Apellido agente</th><th>Origen</th><th>Estado</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div style="display:flex; justify-content:flex-end; margin-top:10px; align-items:flex-end;">
+            <div style="border:1px solid #ccc; background:#fff; display:inline-flex; flex-direction:column;">
+                <button onclick="window.abrirCrearInteraccion()" style="border:none; border-bottom:1px solid #ccc; background:#f0f0f0; color:#0066cc; font-weight:bold; padding:4px 10px; cursor:pointer;">Interacción</button>
+                <div style="display:flex;">
+                    <button style="border:none; border-right:1px solid #ccc; background:#f0f0f0; color:#0066cc; font-weight:bold; padding:4px 10px; cursor:pointer;">Reclamos</button>
+                    <button style="border:none; background:#f0f0f0; color:#0066cc; font-weight:bold; padding:4px 10px; cursor:pointer;">SAR</button>
+                </div>
+            </div>
+            <button onclick="window.closeInteraccionView()" style="margin-left:20px; padding:4px 15px; font-weight:bold; cursor:pointer;">Cerrar</button>
+        </div>
+    </div>
+    <div class="mp-footer"><div><i class="fas fa-user"></i> Usuario: E871348* - Usuario de Prueba</div><div><i class="far fa-calendar-alt"></i> Fecha: lunes, 01 de junio de 2026, 04:06:33</div></div>
+</div>
+
+<div id="modalCrearInteraccion" class="modal-overlay" style="z-index: 2900;">
+    <div class="modal-window" style="width: 850px; border: 2px solid #6a8cc7; background:white;">
+        <div class="simulated-ie-bar"><div><i class="fab fa-internet-explorer" style="color:#00a4ef;"></i> Crear de Interacción - Perfil 1: Microsoft Edge</div><div style="cursor:pointer;" onclick="window.closeModal('modalCrearInteraccion')">✕</div></div>
+        
+        <div style="background:#5c87b2; color:white; font-weight:bold; font-size:12px; padding:6px 8px; text-align:center;">CREACION DE INTERACCION.</div>
+        
+        <div style="display:flex; border-bottom:1px solid #6a8cc7;">
+            <div style="flex:3; display:flex; flex-direction:column;">
+                
+                <div style="padding:6px 10px; border-bottom:1px solid #6a8cc7; font-size:12px; color:#000080;">
+                    Nro Teléfono : <strong>966310655</strong>, Contacto : <strong>HECTOR ADRIAN PACHERRE TORRES</strong><br>
+                    Segmento : <strong style="font-size:14px; text-decoration:underline;">C</strong>
+                </div>
+
+                <div style="display:flex; border-bottom:1px solid #6a8cc7;">
+                    <div style="flex:2; padding:10px; border-right:1px solid #6a8cc7;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <tr>
+                                <td style="color:#000080; font-size:11px; padding:4px 0;">Interacción:</td>
+                                <td style="padding:4px 0;">
+                                    <select id="selInteraccion" class="c-input" style="width:100%;" onchange="window.cascadeInteraccion()">
+                                        <option>--- Seleccionar ---</option>
+                                        <option>Información</option>
+                                        <option>Variación</option>
+                                        <option>Motivo de baja o insatisfacción</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color:#000080; font-size:11px; padding:4px 0;">Clase:</td>
+                                <td style="padding:4px 0;">
+                                    <select id="selClase" class="c-input" style="width:100%;" disabled onchange="window.cascadeClase()">
+                                        <option>--- Seleccionar ---</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color:#000080; font-size:11px; padding:4px 0;">Sub Clase:</td>
+                                <td style="padding:4px 0;">
+                                    <select id="selSubClase" class="c-input" style="width:100%;" disabled onchange="window.cascadeSubClase()">
+                                        <option>--- Seleccionar ---</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr id="rowServicioAfectado" style="display:none;">
+                                <td style="color:#000080; font-size:11px; padding:4px 0;">Servicio<br>Afectado:</td>
+                                <td style="padding:4px 0; vertical-align:top;">
+                                    <select id="selServicioAfectado" class="c-input" style="width:100%;" onchange="window.cascadeServicioAfectado()">
+                                        <option>--- Seleccionar ---</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr id="rowDetalle" style="display:none;">
+                                <td style="color:#000080; font-size:11px; padding:4px 0;">Detalle<br>Inconveniente:</td>
+                                <td style="padding:4px 0; vertical-align:top;">
+                                    <select id="selDetalle" class="c-input" style="width:100%;" onchange="window.updateNotas()">
+                                        <option>--- Seleccionar ---</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="flex:1; padding:10px;">
+                        <div style="margin-bottom:10px;">
+                            <span style="color:#000080; font-size:11px; margin-right:5px;">Crear Caso:</span>
+                            <input type="checkbox" id="chkCrearCaso" onchange="window.toggleCola()">
+                        </div>
+                        <div>
+                            <span style="color:#000080; font-size:11px; display:block; margin-bottom:2px;">Enviar a cola:</span>
+                            <select id="selCola" class="c-input" style="width:100%;" disabled>
+                                <option>-- Seleccionar --</option>
+                                <option>BO AJUSTE - RETENCION</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding:5px 10px; border-bottom:1px solid #6a8cc7;">
+                    <table style="width:100%;">
+                        <tr>
+                            <td style="color:#000080; font-size:11px; vertical-align:top; width:50px;">Notas :</td>
+                            <td><textarea id="txtNotasInteraccion" class="c-input" style="width:100%; height:150px; resize:none; font-family:Arial; font-size:11px;"></textarea></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="padding:5px 10px;">
+                    <table style="width:100%;">
+                        <tr>
+                            <td style="color:#000080; font-size:11px; width:70px; font-weight:bold;">CAC/DAC:</td>
+                            <td>
+                                <select class="c-input" style="width:200px;">
+                                    <option>-- Seleccionar --</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="text-align:center; padding:10px; border-top:1px solid #ccc; background:#f4f4f4;">
+                    <button class="btn-outline" style="min-width:80px; margin-right:10px;">Guardar</button>
+                    <button class="btn-outline" style="min-width:80px;" onclick="window.closeModal('modalCrearInteraccion')">Cerrar</button>
+                </div>
+            </div>
+            
+            <div style="flex:1; border-left:2px solid #6a8cc7; padding:10px; background:#f9f9f9;">
+                <div style="color:#000080; font-weight:bold; font-size:11px; text-decoration:underline; margin-bottom:10px;">Reglas de Atención:</div>
+                <div id="txtReglasAtencion" style="font-size:11px; color:#333; line-height:1.4;">
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalGenericoVacio" class="modal-overlay">
+    <div class="modal-window" style="width: 300px;">
+        <div class="simulated-ie-bar"><div>Mensaje del sistema</div><div style="cursor:pointer;" onclick="window.closeModal('modalGenericoVacio')">✕</div></div>
+        <div class="modal-content-area" style="background:white; text-align:center; padding:20px;">No hay información adicional para mostrar en este registro.</div>
+        <div class="modal-footer" style="justify-content: center;"><button type="button" class="btn-outline" onclick="window.closeModal('modalGenericoVacio')">Aceptar</button></div>
+    </div>
+</div>
+
+<div id="popupModal" class="modal-overlay">
+    <div class="modal-window" style="width: 550px;">
+        <div class="simulated-ie-bar"><div><i class="fab fa-internet-explorer" style="color:#00a4ef;"></i> SIAC UNICO - Perfil 1...</div><div style="cursor:pointer;" onclick="window.closeModal('popupModal')">✕</div></div>
+        <div class="modal-header-red">Instantaneas</div>
+        <div class="modal-content-area" style="background:white;">
+            <div class="desc-box"><strong>Descripción</strong><br><br>Alarma 1: 05/05/2026 12:00 a.m. al 31/05/2026 11:59 p.m. INFORMALE A TU CLIENTE: por ser FULL CLARO tiene mas beneficios SIN PAGAR MAS y PARA TODA LA VIDA! Dile que recibe hasta el DOBLE DE VELOCIDAD en su casa y tiene DESCUENTOS UNICOS en equipos.</div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn-blue" onclick="window.closeModal('popupModal')">Cerrar</button></div>
+    </div>
+</div>
+
+<div id="modalDatosCliente" class="modal-overlay">
+    <div class="modal-window" style="width: 850px;">
+        <div class="simulated-ie-bar"><div><i class="fab fa-internet-explorer" style="color:#00a4ef;"></i> Datos del Cliente</div><div style="cursor:pointer;" onclick="window.closeModal('modalDatosCliente')">✕</div></div>
+        <div class="modal-header-red">Datos del Cliente</div>
+        <div class="tabs-container" style="background:#e5e5e5;">
+            <div class="tab active" style="color:#333; border-top: 2px solid #da291c;" onclick="window.switchModalTab(this, 'mdc-1')">Datos del Cliente</div>
+            <div class="tab" style="color:#333; background: #ddd;" onclick="window.switchModalTab(this, 'mdc-2')">Domicilio de Facturación</div>
+            <div class="tab" style="color:#333; background: #ddd;" onclick="window.switchModalTab(this, 'mdc-3')">Domicilio Legal</div>
+            <div class="tab" style="color:#333; background: #ddd;" onclick="window.switchModalTab(this, 'mdc-4')">Data Histórica del Cliente</div>
+        </div>
+        <div class="modal-content-area" style="min-height: 250px;">
+            <div id="mdc-1" class="modal-subtab" style="display: block;">
+                <table class="data-table" style="background:white; border: 1px solid #ccc; width: 100%;">
+                    <tr><td style="width: 150px; background:#f9f9f9; font-weight:bold;">Cliente</td><td colspan="3">HECTOR ADRIAN PACHERRE TORRES</td><td style="background:#f9f9f9; font-weight:bold;">Cuenta</td><td>1.93754631</td></tr>
+                    <tr><td style="background:#f9f9f9; font-weight:bold;">Contacto</td><td colspan="5">HECTOR ADRIAN PACHERRE TORRES</td></tr>
+                    <tr><td style="background:#f9f9f9; font-weight:bold;">DNI/RUC</td><td colspan="5">74174478</td></tr>
+                    <tr><td style="background:#f9f9f9; font-weight:bold;">Cargo</td><td colspan="5"></td></tr>
+                    <tr><td style="background:#f9f9f9; font-weight:bold;">Lugar Nacimiento</td><td>Peru</td><td style="background:#f9f9f9; font-weight:bold;">Fecha Nacimiento</td><td>13/11/1997</td><td style="background:#f9f9f9; font-weight:bold;">Estado Civil</td><td>Otro</td></tr>
+                    <tr><td style="background:#f9f9f9; font-weight:bold;">Contacto Cliente</td><td colspan="5">HECTOR ADRIAN PACHERRE TORRES</td></tr>
+                    <tr><td style="background:#f9f9f9; font-weight:bold;">Nombre Comercial</td><td colspan="5"></td></tr>
+                    <tr><td style="background:#f9f9f9; font-weight:bold;">Representante Legal</td><td>HECTOR ADRIAN PACHERRE...</td><td style="background:#f9f9f9; font-weight:bold;">Tipo Documento</td><td>DNI</td><td style="background:#f9f9f9; font-weight:bold;">Nro Documento</td><td>74174478</td></tr>
+                    <tr><td style="background:#f9f9f9; font-weight:bold;">Tel. Referencia 1</td><td>01966310655</td><td style="background:#f9f9f9; font-weight:bold;">Tel. Referencia 2</td><td>966310655</td><td style="background:#f9f9f9; font-weight:bold;">Fax</td><td></td></tr>
+                    <tr><td style="background:#f9f9f9; font-weight:bold;">Email Autorizado</td><td colspan="5">ENDOCORE5@GMAIL.COM</td></tr>
+                    <tr><td style="background:#f9f9f9; font-weight:bold;">Asesor</td><td colspan="5">CLARA EMILIA TAFUR AGUILAR</td></tr>
+                </table>
+            </div>
+            <div id="mdc-2" class="modal-subtab" style="display: none;"><table class="data-table" style="background:white; border: 1px solid #ccc; width: 100%;"><tr><td style="width:150px; background:#f9f9f9; font-weight:bold;">Calle</td><td colspan="5">CASN S/N MZ N LT 15</td></tr><tr><td style="background:#f9f9f9; font-weight:bold;">Urb. / Ref.</td><td colspan="5">OTR 22 SEC 3 PARQUE</td></tr><tr><td style="background:#f9f9f9; font-weight:bold;">Código Postal</td><td colspan="5">L42</td></tr><tr><td style="background:#f9f9f9; font-weight:bold;">Departamento</td><td>LIMA</td><td style="background:#f9f9f9; font-weight:bold;">Provincia</td><td>LIMA</td><td style="background:#f9f9f9; font-weight:bold;">Distrito</td><td>VILLA EL SALVADOR</td></tr></table></div>
+            <div id="mdc-3" class="modal-subtab" style="display: none;"><table class="data-table" style="background:white; border: 1px solid #ccc; width: 100%;"><tr><td style="width:150px; background:#f9f9f9; font-weight:bold;">Calle</td><td colspan="5">CASN S/N MZ N LT 15</td></tr><tr><td style="background:#f9f9f9; font-weight:bold;">Urb. / Ref.</td><td colspan="5">OTR 22 SEC 3 PARQUE</td></tr><tr><td style="background:#f9f9f9; font-weight:bold;">Distrito</td><td>VILLA EL SALVADOR</td><td style="background:#f9f9f9; font-weight:bold;">Provincia</td><td>LIMA</td><td style="background:#f9f9f9; font-weight:bold;">Departamento</td><td>LIMA</td></tr></table></div>
+            <div id="mdc-4" class="modal-subtab" style="display: none;">
+                <div class="accordion-header"><i class="fas fa-caret-down"></i> Datos de Contacto del Cliente</div>
+                <div class="accordion-content"><table style="width: 100%; border-collapse: collapse; font-size: 11px;"><tr style="background:#eee;"><th style="padding:4px; border:1px solid #ccc; text-align:left;">Datos del Cliente</th><th style="padding:4px; border:1px solid #ccc; text-align:left;">Fecha de Cambio</th><th style="padding:4px; border:1px solid #ccc; text-align:left;">Tipo de cambio</th></tr><tr><td style="padding:4px; border:1px solid #ccc;">Correo: ENDOCORE5@GMAIL.COM Tel. Referencia 1: 01966310655...</td><td style="padding:4px; border:1px solid #ccc;">10/09/2021</td><td style="padding:4px; border:1px solid #ccc;">Registro</td></tr></table></div>
+                <div class="accordion-header"><i class="fas fa-caret-down"></i> Domicilio del Cliente</div>
+                <div class="accordion-content"><table style="width: 100%; border-collapse: collapse; font-size: 11px;"><tr style="background:#eee;"><th style="padding:4px; border:1px solid #ccc; text-align:left;">Domicilio del Cliente</th><th style="padding:4px; border:1px solid #ccc; text-align:left;">Fecha de Cambio</th><th style="padding:4px; border:1px solid #ccc; text-align:left;">Tipo de cambio</th></tr><tr><td style="padding:4px; border:1px solid #ccc;">Calle: CASN S/N MZ N LT 15 Referencia: OTR 22 SEC 3 PARQUE Departamento: LIMA Provincia: LIMA Distrito: VILLA EL SALVADOR</td><td style="padding:4px; border:1px solid #ccc;">10/09/2021</td><td style="padding:4px; border:1px solid #ccc;">Registro</td></tr></table></div>
+                <div class="accordion-header"><i class="fas fa-caret-down"></i> Dirección de Facturación</div>
+                <div class="accordion-content"><table style="width: 100%; border-collapse: collapse; font-size: 11px;"><tr style="background:#eee;"><th style="padding:4px; border:1px solid #ccc; text-align:left;">Domicilio de Facturación</th><th style="padding:4px; border:1px solid #ccc; text-align:left;">Fecha de Cambio</th><th style="padding:4px; border:1px solid #ccc; text-align:left;">Tipo de cambio</th></tr><tr><td style="padding:4px; border:1px solid #ccc;">Calle: CASN S/N MZ N LT 15 Referencia: OTR 22 SEC 3 PARQUE Departamento: LIMA Provincia: LIMA Distrito: VILLA EL SALVADOR</td><td style="padding:4px; border:1px solid #ccc;">10/09/2021</td><td style="padding:4px; border:1px solid #ccc;">Registro</td></tr></table></div>
+            </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn-blue" onclick="window.closeModal('modalDatosCliente')">Cancelar</button></div>
+    </div>
+</div>
+
+<div id="modalHistorialPlan" class="modal-overlay">
+    <div class="modal-window" style="width: 600px;">
+        <div class="simulated-ie-bar"><div><i class="fab fa-internet-explorer" style="color:#00a4ef;"></i> Historial de Plan</div><div style="cursor:pointer;" onclick="window.closeModal('modalHistorialPlan')">✕</div></div>
+        <div class="modal-header-red">Historial de Plan</div>
+        <div class="modal-content-area">
+            <table class="modal-table">
+                <thead><tr><th>Válido Desde</th><th>Plan Tarifario</th><th>Cambiado Por</th></tr></thead>
+                <tbody>
+                    <tr><td id="modal-hist-valido">10/05/2026 12:07:04 a.m.</td><td id="modal-hist-plan-1">Max 39.90</td><td></td></tr>
+                    <tr><td>10/09/2025 12:35:22 a.m.</td><td>Max Int 55.90</td><td></td></tr>
+                    <tr><td>10/08/2025 10:19:02 a.m.</td><td>Max 55.90</td><td></td></tr>
+                    <tr><td>10/07/2025 12:44:54 a.m.</td><td>Max 55.90</td><td></td></tr>
+                    <tr><td>10/06/2025 10:46:18 a.m.</td><td>Max 55.90</td><td></td></tr>
+                    <tr><td>10/05/2025 12:12:38 a.m.</td><td>Max Ilimitado 69.90</td><td></td></tr>
+                    <tr><td>10/04/2025 12:28:36 a.m.</td><td>Max Ilimitado 69.90</td><td>OMD</td></tr>
+                    <tr><td>10/03/2025 12:28:36 a.m.</td><td>Max Ilimitado 69.90</td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn-blue" onclick="window.closeModal('modalHistorialPlan')">Cancelar</button></div>
+    </div>
+</div>
+
+<div id="modalServiciosComerciales" class="modal-overlay">
+    <div class="modal-window" style="width: 1050px; height: 80vh;">
+        <div class="simulated-ie-bar"><div><i class="fab fa-internet-explorer" style="color:#00a4ef;"></i> Servicios Comerciales Contratados</div><div style="cursor:pointer;" onclick="window.closeModal('modalServiciosComerciales')">✕</div></div>
+        <div class="modal-header-red">Servicios Comerciales Contratados</div>
+        <div class="modal-content-area">
+            <div style="background: white; padding: 10px; border: 1px solid #ccc; margin-bottom: 10px; display:flex; justify-content:space-between;">
+                <div><strong>Nro. Servicio:</strong> 966310655 <br><strong>Cliente:</strong> HECTOR ADRIAN PACHERRE...</div>
+                <div><strong>Tipo Cliente:</strong> Consumer <br><strong>Plan:</strong> <span id="modal-plan">Max 39.90</span></div>
+                <div><strong>Ciclo de Facturación:</strong> <span id="modal-ciclo">11</span></div>
+            </div>
+            <table class="modal-table">
+                <thead><tr><th>Servicios</th><th>Motivo por el que los servicios son excluyentes</th><th>Estado</th><th>Válido desde</th><th>Cargo fijo</th><th>Cargo suscripción</th><th>Cuotas</th></tr></thead>
+                <tbody>
+                    <tr class="bg-red"><td>Bloqueo SMS</td><td></td><td>Desactivo</td><td>2025-10-16 09:57:42</td><td>0.00</td><td>0.00</td><td>0</td></tr>
+                    <tr class="bg-green"><td>Bono Full Claro - 15 GB</td><td></td><td>Activo</td><td>2024-05-29 23:54:40</td><td>0.00</td><td>0.00</td><td>0</td></tr>
+                    <tr class="bg-green"><td>Claro Video - Suscripción</td><td></td><td>Activo</td><td>2022-02-06 23:55:48</td><td>0.00</td><td>0.00</td><td>0</td></tr>
+                    <tr class="bg-red"><td>Facebook Fotos</td><td></td><td>Desactivo</td><td>2023-12-19 10:36:12</td><td>0.00</td><td>0.00</td><td>0</td></tr>
+                    <tr class="bg-green"><td>Paquete SMS 10</td><td>Paquete CC SMS</td><td>Activo</td><td>2020-10-01 01:50:14</td><td>0.00</td><td>0.00</td><td>0</td></tr>
+                    <tr class="bg-green"><td>Servicio Roaming</td><td></td><td>Activo</td><td>2020-02-06 23:55:48</td><td>0.00</td><td>0.00</td><td>0</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn-blue" onclick="window.closeModal('modalServiciosComerciales')">Cerrar</button></div>
+    </div>
+</div>
+
+<div id="modalHistorialLinea" class="modal-overlay">
+    <div class="modal-window" style="width: 800px;">
+        <div class="simulated-ie-bar"><div><i class="fab fa-internet-explorer" style="color:#00a4ef;"></i> Historial de Línea</div><div style="cursor:pointer;" onclick="window.closeModal('modalHistorialLinea')">✕</div></div>
+        <div class="modal-header-red">Historial de Línea</div>
+        <div class="modal-content-area" style="padding:0; overflow:hidden;"><div style="height: 350px; overflow-y: scroll;">
+            <table class="modal-table" style="margin:0; border:none;">
+                <thead style="position: sticky; top: 0;"><tr><th style="background:#aaa; color:white; border:none;">Estado</th><th style="background:#aaa; color:white; border:none;">Motivo</th><th style="background:#aaa; color:white; border:none;">Fecha</th><th style="background:#aaa; color:white; border:none;">Programador</th></tr></thead>
+                <tbody>
+                    <tr><td style="border-bottom:1px solid #ddd;">Activo</td><td style="border-bottom:1px solid #ddd;">DESBLOQUEO POR REPOSICION DE CHIP</td><td style="border-bottom:1px solid #ddd;">06/02/2026 11:55:40 p.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr style="background:#f9f9f9;"><td style="border-bottom:1px solid #ddd;">Suspendido</td><td style="border-bottom:1px solid #ddd;">BLOQUEO POR REPOSICION DE CHIP</td><td style="border-bottom:1px solid #ddd;">06/02/2026 07:55:32 p.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr><td style="border-bottom:1px solid #ddd;">Activo</td><td style="border-bottom:1px solid #ddd;">DESBLOQUEO POR REPOSICION DE CHIP</td><td style="border-bottom:1px solid #ddd;">26/04/2024 08:53:02 p.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr style="background:#f9f9f9;"><td style="border-bottom:1px solid #ddd;">Suspendido</td><td style="border-bottom:1px solid #ddd;">Bloqueo Linea por Pedido de Cliente - Robo</td><td style="border-bottom:1px solid #ddd;">26/04/2024 03:25:39 p.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr><td style="border-bottom:1px solid #ddd;">Activo</td><td style="border-bottom:1px solid #ddd;">Desbloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">31/05/2023 03:13:35 p.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr style="background:#f9f9f9;"><td style="border-bottom:1px solid #ddd;">Suspendido</td><td style="border-bottom:1px solid #ddd;">Bloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">31/05/2023 06:37:18 a.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr><td style="border-bottom:1px solid #ddd;">Activo</td><td style="border-bottom:1px solid #ddd;">Desbloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">24/02/2023 02:33:45 p.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr style="background:#f9f9f9;"><td style="border-bottom:1px solid #ddd;">Suspendido</td><td style="border-bottom:1px solid #ddd;">Bloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">11/01/2023 06:50:05 a.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr><td style="border-bottom:1px solid #ddd;">Activo</td><td style="border-bottom:1px solid #ddd;">Desbloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">06/01/2023 06:40:28 p.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr style="background:#f9f9f9;"><td style="border-bottom:1px solid #ddd;">Suspendido</td><td style="border-bottom:1px solid #ddd;">Bloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">06/01/2023 06:14:44 a.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr><td style="border-bottom:1px solid #ddd;">Activo</td><td style="border-bottom:1px solid #ddd;">Desbloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">14/11/2022 02:19:57 a.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr style="background:#f9f9f9;"><td style="border-bottom:1px solid #ddd;">Suspendido</td><td style="border-bottom:1px solid #ddd;">Bloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">11/11/2022 05:38:05 a.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr><td style="border-bottom:1px solid #ddd;">Activo</td><td style="border-bottom:1px solid #ddd;">Desbloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">07/11/2022 06:31:54 p.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr style="background:#f9f9f9;"><td style="border-bottom:1px solid #ddd;">Suspendido</td><td style="border-bottom:1px solid #ddd;">Bloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">07/11/2022 06:11:33 a.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr><td style="border-bottom:1px solid #ddd;">Activo</td><td style="border-bottom:1px solid #ddd;">Desbloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">08/04/2022 09:29:18 a.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr style="background:#f9f9f9;"><td style="border-bottom:1px solid #ddd;">Suspendido</td><td style="border-bottom:1px solid #ddd;">Bloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">08/04/2022 04:49:54 a.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr><td style="border-bottom:1px solid #ddd;">Activo</td><td style="border-bottom:1px solid #ddd;">Desbloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">07/02/2022 08:44:51 p.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr style="background:#f9f9f9;"><td style="border-bottom:1px solid #ddd;">Suspendido</td><td style="border-bottom:1px solid #ddd;">Bloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">07/02/2022 05:39:06 a.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr><td style="border-bottom:1px solid #ddd;">Activo</td><td style="border-bottom:1px solid #ddd;">Desbloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">10/11/2021 10:48:16 a.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr style="background:#f9f9f9;"><td style="border-bottom:1px solid #ddd;">Suspendido</td><td style="border-bottom:1px solid #ddd;">Bloqueo Linea por Cobranza - Parcial</td><td style="border-bottom:1px solid #ddd;">12/10/2021 05:25:35 p.m.</td><td style="border-bottom:1px solid #ddd;">ADMX</td></tr>
+                    <tr><td style="border-bottom:1px solid #ddd;">Pendiente</td><td style="border-bottom:1px solid #ddd;">retenido</td><td style="border-bottom:1px solid #ddd;">10/09/2021 12:17:37 a.m.</td><td style="border-bottom:1px solid #ddd;">USRPVU</td></tr>
+                    <tr style="background:#f9f9f9;"><td style="border-bottom:1px solid #ddd;">Activo</td><td style="border-bottom:1px solid #ddd;">Port-In</td><td style="border-bottom:1px solid #ddd;">10/09/2021 12:17:37 a.m.</td><td style="border-bottom:1px solid #ddd;">USRPVU</td></tr>
+                </tbody>
+            </table>
+        </div></div>
+        <div class="modal-footer"><button type="button" class="btn-blue" onclick="window.closeModal('modalHistorialLinea')">Cancelar</button></div>
+    </div>
+</div>
+
+<div id="modalHistFacturas" class="modal-overlay">
+    <div class="modal-window" style="width: 750px;">
+        <div class="simulated-ie-bar"><div><i class="fab fa-internet-explorer" style="color:#00a4ef;"></i> Detalle de Facturas Anteriores</div><div style="cursor:pointer;" onclick="window.closeModal('modalHistFacturas')">✕</div></div>
+        <div class="modal-header-red">Detalle de Facturas Anteriores</div>
+        <div class="modal-content-area">
+            <table class="modal-table">
+                <thead><tr><th>Seleccionar</th><th>Válido Desde</th><th>Fecha de Emisión</th><th>Fecha de Vencimiento</th><th>Importe</th><th>PDF</th></tr></thead>
+                <tbody>
+                    <tr><td><input type="checkbox"></td><td>S002-5205822020</td><td id="modal-femi-1">11/05/2026</td><td id="modal-fven-1">29/05/2026</td><td class="modal-importe">39.90</td><td><i class="fas fa-file-pdf" style="color:red; cursor:pointer;"></i> Ver PDF</td></tr>
+                    <tr><td><input type="checkbox"></td><td>S002-8276602239</td><td>11/04/2026</td><td>29/04/2026</td><td class="modal-importe">39.90</td><td><i class="fas fa-file-pdf" style="color:red; cursor:pointer;"></i> Ver PDF</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn-blue" onclick="window.closeModal('modalHistFacturas')">Cancelar</button></div>
+    </div>
+</div>
+
+<div id="modalPortabilidad" class="modal-overlay">
+    <div class="modal-window" style="width: 700px;">
+        <div class="simulated-ie-bar"><div><i class="fab fa-internet-explorer" style="color:#00a4ef;"></i> Datos de Portabilidad</div><div style="cursor:pointer;" onclick="window.closeModal('modalPortabilidad')">✕</div></div>
+        <div class="modal-header-red">Datos de Portabilidad</div>
+        <div class="modal-content-area">
+            <table class="data-table" style="background:white; border: 1px solid #ccc; width: 100%;">
+                <tr><td style="width: 150px; background:#f9f9f9; font-weight:bold;">Nro Solicitud Portabilidad</td><td>21210809010002180</td><td style="width: 150px; background:#f9f9f9; font-weight:bold;">Estado de Proceso</td><td>Proceso exitoso</td></tr>
+                <tr><td style="background:#f9f9f9; font-weight:bold;">Fecha de Ingreso</td><td>08/09/2021 11:53:17 a.m.</td><td style="background:#f9f9f9; font-weight:bold;">Fecha de Activación</td><td>10/09/2021 12:00:01 a.m.</td></tr>
+                <tr><td style="background:#f9f9f9; font-weight:bold;">Operador al que se portó</td><td>Telefónica Móviles S.A.</td><td style="background:#f9f9f9; font-weight:bold;">Centro de Atención</td><td>TOTTUS SURQUILLO_SN</td></tr>
+            </table>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn-blue" onclick="window.closeModal('modalPortabilidad')">Cerrar</button></div>
+    </div>
+</div>
+
+<div id="modalEstadoCuentaAmpliado" class="modal-overlay">
+    <div class="modal-window" style="width: 1100px; max-width: 95vw; height: 90vh;">
+        <div class="simulated-ie-bar"><div><i class="fab fa-internet-explorer" style="color:#00a4ef;"></i> Estado de Cuenta</div><div style="cursor:pointer;" onclick="window.closeModal('modalEstadoCuentaAmpliado')">✕</div></div>
+        <div class="modal-header-red" style="font-size: 11px; padding: 4px 10px;">Estado de Cuenta</div>
+        <div class="modal-content-area" style="padding: 10px; display: flex; flex-direction: column;">
+            <table style="width: 100%; border: 1px solid #ccc; background: white; margin-bottom: 10px; font-size: 11px; padding: 5px;">
+                <tr><td style="width: 100px; padding: 5px;"><strong>Código Cliente :</strong></td><td style="width: 200px;">1.93754631</td><td style="width: 120px;"><strong>Nombre/Razón Social :</strong></td><td>HECTOR ADRIAN PACHERRE TORRES</td><td style="width: 120px;"><strong>Nro Claro / Servicio :</strong></td><td>966310655</td></tr>
+            </table>
+            <div style="background: #a9a9a9; color: white; padding: 4px 10px; font-weight: bold; font-size: 11px;">Filtro Sugerido</div>
+            <div style="flex-grow: 1; overflow-y: auto; border: 1px solid #ccc; background: white;">
+                <table class="edc-table" style="border: none;">
+                    <thead style="position: sticky; top: 0; background: #eee;"><tr><th>Nro</th><th>Detalle</th><th>Documento</th><th>Registro de Ajuste</th><th>Descripción Pago</th><th>Fec Emisión</th><th>Fec Venc</th><th>Cargo</th><th>Abono</th><th>Importe Pendiente</th><th>Monto Reclamado</th><th>Saldo</th></tr></thead>
+                    <tbody>
+                        <tr><td>159</td><td style="color:#000;">PAGO</td><td style="color:#000;">79812271-1</td><td></td><td>OLC Pago - INTERB...</td><td>01/09/2025<br>10:11:45 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>160</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-64175453-2</a></td><td>Realizar Ajuste</td><td>Facturacion Ciclo 11</td><td>11/10/2025<br>12:00:00 a.m.</td><td>29/10/2025</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>161</td><td style="color:#000;">PAGO</td><td style="color:#000;">81522569-1</td><td></td><td>OLC Pago - BCP...</td><td>01/10/2025<br>14:33:15 p.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>162</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-69158550-1</a></td><td>Realizar Ajuste</td><td>Facturacion Ciclo 11</td><td>11/11/2025<br>12:00:00 a.m.</td><td>29/11/2025</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>163</td><td style="color:#000;">PAGO</td><td style="color:#000;">82561118-2</td><td></td><td>OLC Pago - VISA...</td><td>01/11/2025<br>09:50:30 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>164</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-71647737-1</a></td><td>Realizar Ajuste</td><td>Facturacion Ciclo 11</td><td>11/12/2025<br>12:00:00 a.m.</td><td>29/12/2025</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>165</td><td style="color:#000;">PAGO</td><td style="color:#000;">85298463-1</td><td></td><td>OLC Pago - BANCO...</td><td>01/12/2025<br>08:14:22 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>166</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-79012271-1</a></td><td>Realizar Ajuste</td><td>Facturacion Ciclo 11</td><td>11/01/2026<br>12:00:00 a.m.</td><td>29/01/2026</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>167</td><td style="color:#000;">PAGO</td><td style="color:#000;">98895564070</td><td></td><td>OLC Pago - INTERB...</td><td>01/01/2026<br>11:10:05 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>168</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-8121670318</a></td><td>Realizar Ajuste</td><td>Facturacion Ciclo 11</td><td>11/02/2026<br>12:00:00 a.m.</td><td>28/02/2026</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>169</td><td style="color:#000;">PAGO</td><td style="color:#000;">102861928-1</td><td></td><td>OLC Pago - BCP...</td><td>01/02/2026<br>09:42:31 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>170</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-8201453200</a></td><td>Realizar Ajuste</td><td>Facturacion Ciclo 11</td><td>11/03/2026<br>12:00:00 a.m.</td><td>29/03/2026</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>171</td><td style="color:#000;">PAGO</td><td style="color:#000;">100213306-2</td><td></td><td>OLC Pago - VISA...</td><td>01/03/2026<br>10:15:12 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>172</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-8276602239</a></td><td>Realizar Ajuste</td><td>Facturacion Ciclo 11</td><td>11/04/2026<br>12:00:00 a.m.</td><td>29/04/2026</td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>173</td><td style="color:#000;">PAGO</td><td style="color:#000;">97503885-1</td><td></td><td>OLC Pago - BANCO...</td><td>01/04/2026<br>12:23:37 a.m.</td><td></td><td>0</td><td class="edc-abono">39.90</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>174</td><td>Factura</td><td><a href="#" onclick="return false;" class="link-blue">S002-5205822020</a></td><td>Realizar Ajuste</td><td>Facturacion Ciclo <span class="dyn-ciclo">11</span></td><td><span class="modal-femi-amp">11/05/2026</span><br>12:00:00 a.m.</td><td><span class="modal-fven-amp">29/05/2026</span></td><td class="edc-cargo">39.90</td><td>0</td><td>0</td><td>0</td><td>39.90</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="display: flex; justify-content: space-around; font-size: 14px; margin-top: 15px; padding-bottom: 10px;">
+                <div>Deuda No Vencida: <span class="deuda-vencida-val" style="color: #0066cc;">0.00</span></div><div>Deuda Vencida: <span class="deuda-vencida-val" style="color: #0066cc;">0.00</span></div><div style="font-weight: bold;">Deuda Total: <span class="deuda-total-val" style="color: #0066cc;">0.00</span></div>
+            </div>
+            <div class="action-row" style="justify-content: center; border-top: none; margin-top: 0;"><button type="button" class="btn-outline">Estado Cuenta LDI</button><button type="button" class="btn-outline">Consulta Deuda por Nro.Documento</button></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn-blue" onclick="window.closeModal('modalEstadoCuentaAmpliado')">Cancelar</button></div>
+    </div>
+</div>
+
+<script>
+    // Lógica para Modales y Navegación Básica
+    window.openModal = function(modalId) { let modal = document.getElementById(modalId); if(modal) modal.style.display = 'flex'; };
+    window.closeModal = function(modalId) { let modal = document.getElementById(modalId); if(modal) modal.style.display = 'none'; };
+
+    window.switchModalTab = function(element, tabId) {
+        document.querySelectorAll('.modal-subtab').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#modalDatosCliente .tab').forEach(el => { el.classList.remove('active'); el.style.background = '#ddd'; el.style.borderTop = 'none'; });
+        let targetTab = document.getElementById(tabId);
+        if(targetTab) targetTab.style.display = 'block';
+        if(element) { element.classList.add('active'); element.style.background = 'white'; element.style.borderTop = '2px solid #da291c'; }
+    };
+
+    window.switchInteraccionTab = function(element, tabId) {
+        document.querySelectorAll('.int-pane').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.int-tab').forEach(el => el.classList.remove('active'));
+        let targetTab = document.getElementById(tabId);
+        if(targetTab) targetTab.style.display = 'block';
+        if(element) element.classList.add('active');
+    };
+
+    window.updateSelection = function(text) { 
+        document.getElementById('selected-text').textContent = text; 
+        document.getElementById('myDropdown').classList.remove('show'); 
+        document.getElementById('searchInput').focus(); 
+    };
+
+    // Funciones de Vistas Secundarias
+    window.abrirMigracionPrepago = function() { 
+        document.getElementById('mainSiacInterface').style.display = 'none'; 
+        document.getElementById('migracionPlanView').style.display = 'none'; 
+        document.getElementById('interaccionView').style.display = 'none';
+        document.getElementById('migracionPrepagoView').style.display = 'flex'; 
+    };
+    window.closeMigracionPrepago = function() { 
+        document.getElementById('migracionPrepagoView').style.display = 'none'; 
+        document.getElementById('mainSiacInterface').style.display = 'block'; 
+    };
+
+    window.abrirInteraccionView = function() {
+        document.getElementById('mainSiacInterface').style.display = 'none'; 
+        document.getElementById('migracionPlanView').style.display = 'none'; 
+        document.getElementById('migracionPrepagoView').style.display = 'none';
+        document.getElementById('interaccionView').style.display = 'flex'; 
+    };
+    window.closeInteraccionView = function() {
+        document.getElementById('interaccionView').style.display = 'none'; 
+        document.getElementById('mainSiacInterface').style.display = 'block'; 
+    };
+
+    window.abrirMigracionPlan = function() { 
+        document.getElementById('mainSiacInterface').style.display = 'none'; 
+        document.getElementById('migracionPrepagoView').style.display = 'none'; 
+        document.getElementById('interaccionView').style.display = 'none';
+        document.getElementById('migracionPlanView').style.display = 'flex'; 
+    };
+    window.closeMigracionPlan = function() { 
+        document.getElementById('migracionPlanView').style.display = 'none'; 
+        document.getElementById('mainSiacInterface').style.display = 'block'; 
+    };
+
+    window.abrirErrorFecha = function() { window.openModal('modalErrorFecha'); };
+    window.abrirAutorizacion = function() { window.closeModal('modalErrorFecha'); window.openModal('modalAutorizacion'); };
+    window.abrirInfoGeneral = function() { window.openModal('modalInfoGeneral'); };
+    
+    // --- LÓGICA DEL NUEVO MODAL "CREACIÓN DE INTERACCIÓN" ---
+    window.abrirCrearInteraccion = function() {
+        window.openModal('modalCrearInteraccion');
+    };
+
+    window.cascadeInteraccion = function() {
+        let val = document.getElementById('selInteraccion').value;
+        let selClase = document.getElementById('selClase');
+        let selSubClase = document.getElementById('selSubClase');
+        
+        selClase.innerHTML = '<option>--- Seleccionar ---</option>';
+        selClase.disabled = true;
+        selSubClase.innerHTML = '<option>--- Seleccionar ---</option>';
+        selSubClase.disabled = true;
+        document.getElementById('rowServicioAfectado').style.display = 'none';
+        document.getElementById('rowDetalle').style.display = 'none';
+        
+        if (val === 'Variación') {
+            selClase.innerHTML += `
+                <option>VARIACIÓN - CLARO CLUB</option>
+                <option>VARIACIÓN - EQUIPO</option>
+                <option>VARIACIÓN - ESTADO DE LA LÍNEA/CLIENTE</option>
+                <option>VARIACIÓN - FACTURACIÓN/COBRANZAS</option>
+                <option>VARIACIÓN - FALLAS TÉCNICAS</option>
+                <option>VARIACIÓN - GESTIONES OSIPTEL</option>
+                <option>VARIACIÓN - OPERATIVA INTERNA</option>
+                <option>VARIACIÓN - RETENCIÓN</option>
+                <option>VARIACIÓN - SERVICIO TÉCNICO</option>
+                <option>VARIACIÓN - SERVICIOS</option>`;
+            selClase.disabled = false;
+        }
+    };
+
+    window.cascadeClase = function() {
+        let val = document.getElementById('selClase').value;
+        let selSubClase = document.getElementById('selSubClase');
+        
+        selSubClase.innerHTML = '<option>--- Seleccionar ---</option>';
+        selSubClase.disabled = true;
+        document.getElementById('rowServicioAfectado').style.display = 'none';
+        document.getElementById('rowDetalle').style.display = 'none';
+
+        if (val === 'VARIACIÓN - RETENCIÓN') {
+            selSubClase.innerHTML += `
+                <option>ACCIÓN PREVENTIVA - RENOVACIÓN DE DESCUENTO</option>
+                <option>CONTENCIÓN POR OUT - INBOUND</option>
+                <option>ESCALAMIENTO - INCLUMPLIMIENTO DE RETENCIONES</option>
+                <option>FALLAS AT RETENCIONES</option>
+                <option>GESTIÓN BACK OFFICE</option>
+                <option>GESTIÓN BACK OFFICE - NC</option>
+                <option>PREVENTIVA</option>
+                <option>RETENCIONES</option>`;
+            selSubClase.disabled = false;
+        }
+    };
+
+    window.cascadeSubClase = function() {
+        let val = document.getElementById('selSubClase').value;
+        let rowSA = document.getElementById('rowServicioAfectado');
+        let selSA = document.getElementById('selServicioAfectado');
+        
+        rowSA.style.display = 'none';
+        selSA.innerHTML = '<option>--- Seleccionar ---</option>';
+        document.getElementById('rowDetalle').style.display = 'none';
+
+        if (val === 'GESTIÓN BACK OFFICE') {
+            rowSA.style.display = 'table-row';
+            selSA.innerHTML += `
+                <option>Prepago</option>
+                <option>Retenciones</option>
+                <option>Televentas</option>`;
+            
+            // Auto check "Crear Caso" as seen in image
+            document.getElementById('chkCrearCaso').checked = true;
+            window.toggleCola();
+            
+        } else if (val === 'GESTIÓN BACK OFFICE - NC') {
+            rowSA.style.display = 'table-row';
+            selSA.innerHTML += `<option>Retenciones - Ajuste NC</option>`;
+        } else if (val === 'RETENCIONES') {
+            rowSA.style.display = 'table-row'; // Keeps options empty as per image
+        }
+    };
+
+    window.cascadeServicioAfectado = function() {
+        let val = document.getElementById('selServicioAfectado').value;
+        let rowDet = document.getElementById('rowDetalle');
+        let selDet = document.getElementById('selDetalle');
+        
+        rowDet.style.display = 'none';
+        selDet.innerHTML = '<option>--- Seleccionar ---</option>';
+        window.updateNotas();
+
+        if (val === 'Retenciones') {
+            rowDet.style.display = 'table-row';
+            selDet.innerHTML += `
+                <option>Ajuste OCC - Activación de Bono</option>
+                <option>AJUSTE OCC - BO</option>
+                <option>Ajuste OCC - Downgrade</option>
+                <option>Ajuste OCC - Renovación</option>
+                <option>Anulación OCC</option>
+                <option>Reten Fija Dsct Móvil - OCC</option>`;
+        }
+    };
+
+    window.toggleCola = function() {
+        let isChecked = document.getElementById('chkCrearCaso').checked;
+        let selCola = document.getElementById('selCola');
+        if(isChecked) {
+            selCola.disabled = false;
+            selCola.value = "BO AJUSTE - RETENCION"; // Default based on image
+        } else {
+            selCola.disabled = true;
+            selCola.selectedIndex = 0;
+        }
+    };
+
+    window.updateNotas = function() {
+        let subClase = document.getElementById('selSubClase').value;
+        let detalle = document.getElementById('selDetalle').value;
+        let txtNotas = document.getElementById('txtNotasInteraccion');
+        let txtReglas = document.getElementById('txtReglasAtencion');
+
+        txtNotas.value = "";
+        txtReglas.innerHTML = "";
+
+        if (subClase === 'GESTIÓN BACK OFFICE') {
+            if (detalle === 'Ajuste OCC - Downgrade') {
+                txtNotas.value = "TIPO DE SOLICITUD: Contención / Competencia\nIMR del cliente: No afecto a IMR\nOperador:\nPromoción Ofrecida:\nCantidad de meses:\nMeses aplicar (desde que mes se aplica el dscto):\nSN de la llamada:\nNuevo Plan:\nVB del Supervisor:";
+                txtReglas.innerHTML = "Tipificación a utilizar cuando se requiera realizar un ajuste OCC a un cliente que ha solicitado un downgrade de plan.<br>Se debe crear y derivar el caso al Back Office de Ajuste.<br><br>El Back Office de Ajuste realizará seguimiento al cambio de plan para ejecutar el ajuste OCC ofrecido.";
+            } else if (detalle === 'Ajuste OCC - Activación de Bono') {
+                txtNotas.value = "Campaña:\nTipo de solicitud:\nBono Ofrecido:\nOperador:\nCantidad de meses:\nSN de la llamada:\nNuevo plan:";
+                txtReglas.innerHTML = "Tipificación a utilizar para derivar la activación del Bono de GB, posterior a la atención del cambio de plan (Upgrade).";
+            } else {
+                txtNotas.value = "No aplica para Atención Presencial\nCompletar la plantilla según las reglas de atención.";
+                txtReglas.innerHTML = "<span style='color:#da291c; font-weight:bold;'>IMPORTANTE:</span> Aplica para registro por parte de Call Center - Retenciones<br><br><span style='color:#000080; font-weight:bold;'>RETENCIONES</span><br><br>1.Toda aplicación del 50% por 12 meses requiere el VB del supervisor.<br><br>2.Para los ajustes de 6 a 12 meses de vigencia, validar el comportamiento consolidado.<br><br>3.Todo ajuste por aplicar debe figurar en la matriz de Retenciones Móvil.<br><br>4.Ajuste más cambio de plan: Se debe detallar el nuevo plan en la Plantilla.";
+            }
+        } else if (subClase === 'GESTIÓN BACK OFFICE - NC') {
+             txtReglas.innerHTML = "";
+        } else {
+             txtReglas.innerHTML = "";
+        }
+    };
+
+    // --- LOGICA MODAL MIGRACION PLAN ---
+    window.planSeleccionadoTemp = "";
+    
+    window.abrirModalPlanes = function() { window.openModal('modalNuevoPlan'); };
+    window.togglePlanesBasicos = function() { document.getElementById('containerFiltrosNuevoPlan').style.display = 'block'; };
+
+    window.verificarFiltrosPlanes = function() {
+        let mod = document.getElementById('selectModalidad').value;
+        let fam = document.getElementById('selectFamilia').value;
+        let tabla = document.getElementById('containerTablaNuevoPlan');
+        if(mod !== '-- Seleccionar --' && fam === 'Cobertura Internacional') {
+            tabla.style.display = 'block';
+        } else {
+            tabla.style.display = 'none';
+        }
+    };
+
+    window.seleccionarPlan = function() {
+        let radios = document.getElementsByName('rPlan'); 
+        let seleccionado = false;
+        for(let i=0; i<radios.length; i++){
+            if(radios[i].checked){
+                window.planSeleccionadoTemp = radios[i].value; 
+                seleccionado = true;
+                window.closeModal('modalNuevoPlan'); 
+                window.openModal('modalBonosMantener'); 
+                break;
+            }
+        }
+        if(!seleccionado) alert("Seleccione un plan de la lista.");
+    };
+
+    window.abrirConfirmacion = function() {
+        window.closeModal('modalBonosMantener');
+        let msg = document.getElementById('msgConfirmacion');
+        if(msg) msg.textContent = `¿Está seguro de seleccionar el Plan ${window.planSeleccionadoTemp}?`;
+        window.openModal('modalConfirmAlert');
+    };
+
+    window.aplicarPlan = function() {
+        window.closeModal('modalConfirmAlert');
+        
+        document.getElementById('row-nuevo-plan').style.display = 'table-row';
+        document.getElementById('row-cargo-fijo').style.display = 'table-row';
+
+        let mplanNuevoText = document.getElementById('mplan-nuevo-plan-text');
+        if(mplanNuevoText) mplanNuevoText.textContent = window.planSeleccionadoTemp;
+        
+        let matchNuevo = window.planSeleccionadoTemp.match(/(\d+\.\d+)/);
+        let importeConIgv = matchNuevo ? parseFloat(matchNuevo[0]) : 0.00;
+        let importeSinIgv = (importeConIgv / 1.18).toFixed(2);
+        
+        let cfSin = document.getElementById('mplan-cf-sinigv'); 
+        let cfCon = document.getElementById('mplan-cf-conigv');
+        if(cfSin) { cfSin.value = importeSinIgv; cfSin.style.backgroundColor = '#ffffcc'; cfSin.style.fontWeight = 'bold'; cfSin.style.color = 'black'; }
+        if(cfCon) { cfCon.value = importeConIgv.toFixed(2); cfCon.style.backgroundColor = '#ffffcc'; cfCon.style.fontWeight = 'bold'; cfCon.style.color = 'black'; }
+
+        let actualElement = document.getElementById('mplan-plan-actual');
+        let matchActual = actualElement ? actualElement.textContent.match(/(\d+\.\d+)/) : null;
+        if (matchActual) {
+            let valActual = parseFloat(matchActual[0]); 
+            let penalidad = 0.00;
+            if (importeConIgv > 0 && importeConIgv < valActual) { penalidad = 470.56; }
+            let inPenalidad = document.getElementById('mplan-penalidad'); 
+            let inTotalPenalidad = document.getElementById('mplan-total-penalidad');
+            if(inPenalidad) { inPenalidad.value = penalidad.toFixed(2); inPenalidad.style.color = 'black'; }
+            if(inTotalPenalidad) { inTotalPenalidad.value = penalidad.toFixed(2); inTotalPenalidad.style.color = 'black'; }
+        }
+    };
+
+    window.abrirConfirmacionGrabarPlan = function() {
+        let topeSelect = document.getElementById('dropdown-limite-plan');
+        if(topeSelect && !topeSelect.disabled && topeSelect.selectedIndex > -1) {
+            let topeText = topeSelect.options[topeSelect.selectedIndex].text;
+            let textTopeSpan = document.getElementById('topeConsumoText');
+            if(textTopeSpan) textTopeSpan.textContent = topeText;
+            window.openModal('modalConfirmGrabarPlan');
+        } else if (document.getElementById('radio-limite-plan') && !document.getElementById('radio-limite-plan').checked) {
+            let textTopeSpan = document.getElementById('topeConsumoText');
+            if(textTopeSpan) textTopeSpan.textContent = "Consumo Abierto";
+            window.openModal('modalConfirmGrabarPlan');
+        } else {
+            alert("Por favor seleccione un Tope de Consumo válido.");
+        }
+    };
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Eventos Dropdown
+        const dropBtn = document.getElementById('dropBtn');
+        const dropdownMenu = document.getElementById('myDropdown');
+        dropBtn.addEventListener('click', function(e) { e.stopPropagation(); dropdownMenu.classList.toggle('show'); });
+        window.addEventListener('click', function() { if (dropdownMenu.classList.contains('show')) dropdownMenu.classList.remove('show'); });
+
+        // Eventos Pestañas Main
+        const tabs = document.querySelectorAll('.right-panel .tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const container = this.closest('.right-panel');
+                container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                container.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById(this.getAttribute('data-target')).classList.add('active');
+            });
+        });
+
+        // Eventos Límite Consumo
+        const radiosConsumoPlan = document.getElementsByName('lim_mplan');
+        const dropdownLimitePlan = document.getElementById('dropdown-limite-plan');
+        const radioLimitePlan = document.getElementById('radio-limite-plan');
+        
+        radiosConsumoPlan.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if(radioLimitePlan && dropdownLimitePlan) {
+                    if(radioLimitePlan.checked) {
+                        dropdownLimitePlan.disabled = false;
+                        dropdownLimitePlan.innerHTML = "<option>Consumo Adicional</option><option selected>Consumo Exacto</option>";
+                        dropdownLimitePlan.style.color = "#333";
+                    } else {
+                        dropdownLimitePlan.disabled = true;
+                        dropdownLimitePlan.innerHTML = "<option>-- Seleccionar --</option>";
+                        dropdownLimitePlan.style.color = "#aca899";
+                    }
+                }
+            });
+        });
+
+        // BÚSQUEDA Y DATOS ALEATORIOS
+        const planes = ["Max 29.90", "Max 39.90", "Max 49.90", "Max 56.90", "Max 60.90", "Max Ilimitado 60.90", "Max Ilimitado 69.90", "Max Ilimitado 79.90", "Max Ilimitado 95.90", "Max Ilimitado 109.90", "Max Ilimitado 159.90", "Max Ilimitado 189.90", "Max 31.90", "Max 42.90", "Max 53.90", "Max ilimitado 60.90", "Max ilimitado 74.90", "Max ilimitado 84.90"];
+        const poolSegmentos = ["A", "A", "B", "B", "C", "C", "S", "S", "Premiun", "Premiun", "D"]; 
+        const ciclos = [1, 3, 4, 5, 6, 8, 9, 10, 11, 12, 14, 16, 18, 19, 20, 22, 24, 25, 26, 28];
+        const motivosSuspendido = ["Bloqueo Linea por Cobranza - Parcial", "Bloqueo Linea por Cobranza - Total"];
+        const motivosInicial = ["Migración de Prepago a Postpago", "Port-In", "Activación"];
+        const fullClaroOpciones = ["No cumple requisito", "Ya es Full Claro"];
+
+        function formatearFecha(d) {
+            let day = String(d.getDate()).padStart(2, '0'); let month = String(d.getMonth() + 1).padStart(2, '0'); let year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        const btnSearch = document.getElementById('btnSearch');
+        const searchInput = document.getElementById('searchInput');
+        const mainContent = document.getElementById('mainContent');
+        const emptyState = document.getElementById('emptyState');
+        
+        searchInput.addEventListener("keypress", function(event) { if (event.key === "Enter") { event.preventDefault(); btnSearch.click(); } });
+
+        btnSearch.addEventListener('click', function() {
+            const searchVal = searchInput.value.trim();
+            if(searchVal !== "") {
+                try {
+                    let planSel = planes[Math.floor(Math.random() * planes.length)];
+                    let importe = planSel.match(/(\d+\.\d+)/)[0];
+                    let segmentoSel = poolSegmentos[Math.floor(Math.random() * poolSegmentos.length)];
+                    let cicloSel = ciclos[Math.floor(Math.random() * ciclos.length)];
+                    let motivoIniSel = motivosInicial[Math.floor(Math.random() * motivosInicial.length)];
+                    let fcLeftSel = fullClaroOpciones[Math.floor(Math.random() * fullClaroOpciones.length)];
+                    let fcRightSel = (fcLeftSel === "Ya es Full Claro") ? "Elige bono movil" : "No cumple requisito";
+
+                    let isActivo = Math.random() < 0.85; 
+                    let estadoServ = isActivo ? "Activo" : "Suspendido";
+                    let motivoServ = isActivo ? "DESBLOQUEO POR REPOSICION DE CHIP" : motivosSuspendido[Math.floor(Math.random() * motivosSuspendido.length)];
+
+                    let deudaVencida = "0.00"; let deudaTotal = "0.00";
+                    if (estadoServ === "Suspendido" && motivoServ === "Bloqueo Linea por Cobranza - Parcial") {
+                        deudaVencida = importe; deudaTotal = importe;
+                    } else if (estadoServ === "Activo" && Math.random() < 0.20) {
+                        deudaVencida = importe; deudaTotal = importe;
+                    }
+
+                    let fechaEmiObj = new Date(2026, 4, cicloSel);
+                    let fechaVencObj = new Date(2026, 4, cicloSel + 18);
+                    let strEmi = formatearFecha(fechaEmiObj);
+                    let strVenc = formatearFecha(fechaVencObj);
+                    
+                    let fechaAppObj = new Date(2026, 5, cicloSel);
+                    fechaAppObj.setDate(fechaAppObj.getDate() - 1);
+                    let strFechaApp = formatearFecha(fechaAppObj);
+
+                    const setEl = (id, val) => { let el = document.getElementById(id); if(el) el.innerHTML = val; };
+                    const setVal = (id, val) => { let el = document.getElementById(id); if(el) el.value = val; };
+
+                    setEl('dato-segmento-1', segmentoSel); setEl('dato-segmento-2', segmentoSel);
+                    setEl('dato-plan', planSel); setEl('dato-estado-servicio', estadoServ);
+                    setEl('dato-motivo-estado', motivoServ); setEl('dato-ciclo-fact', cicloSel);
+                    setEl('dato-monto-igv', importe); setEl('dato-cargo-fijo', importe);
+                    setEl('dato-fecha-emision', strEmi); setEl('dato-fecha-venc', strVenc); setEl('dato-motivo-inicial', motivoIniSel);
+
+                    let elFcLeft = document.getElementById('dato-full-claro-left');
+                    let elFcRight = document.getElementById('dato-full-claro-right');
+                    if (elFcLeft && elFcRight) {
+                        elFcLeft.textContent = fcLeftSel; elFcRight.textContent = fcRightSel;
+                        if (fcLeftSel === "Ya es Full Claro") {
+                            elFcLeft.classList.add("text-red"); elFcRight.classList.add("text-red");
+                            elFcLeft.classList.remove("text-normal"); elFcRight.classList.remove("text-normal");
+                        } else {
+                            elFcLeft.classList.remove("text-red"); elFcRight.classList.remove("text-red");
+                            elFcLeft.classList.add("text-normal"); elFcRight.classList.add("text-normal");
+                        }
+                    }
+
+                    setEl('mpre-plan-actual', planSel); setEl('mpre-monto-ultima', importe);
+                    setEl('mpre-fecha-venc', strVenc); setVal('mpre-fecha-app', strFechaApp);
+                    setEl('mplan-plan-actual', planSel); setEl('mplan-fecha-venc', strVenc); setVal('mplan-fecha-app', strFechaApp);
+                    setEl('edc-fecha-emi', strEmi); setEl('edc-fecha-venc', strVenc);
+
+                    document.querySelectorAll('.modal-femi-amp').forEach(el => el.textContent = strEmi);
+                    document.querySelectorAll('.modal-fven-amp').forEach(el => el.textContent = strVenc);
+                    document.querySelectorAll('.dyn-ciclo').forEach(el => el.textContent = cicloSel);
+                    document.querySelectorAll('.edc-cargo').forEach(el => el.textContent = importe);
+                    document.querySelectorAll('.edc-abono').forEach(el => el.textContent = importe);
+                    document.querySelectorAll('.deuda-vencida-val').forEach(el => el.textContent = deudaVencida);
+                    document.querySelectorAll('.deuda-total-val').forEach(el => el.textContent = deudaTotal);
+
+                    let fechaValidoObj = new Date(2026, 4, cicloSel); fechaValidoObj.setDate(fechaValidoObj.getDate() - 1);
+                    setEl('modal-hist-valido', formatearFecha(fechaValidoObj) + " 12:07:04 a.m.");
+                    
+                    setEl('modal-hist-plan-1', planSel);
+                    document.querySelectorAll('.modal-importe').forEach(el => el.textContent = importe);
+
+                    if(emptyState && mainContent) { emptyState.style.display = 'none'; mainContent.style.display = 'block'; }
+                    
+                    document.querySelectorAll('.right-panel .tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.right-panel .tab-pane').forEach(p => p.classList.remove('active'));
+                    let tbCuenta = document.querySelector('.right-panel [data-target="tab-cuenta"]');
+                    let contentCuenta = document.getElementById('tab-cuenta');
+                    if(tbCuenta && contentCuenta) { tbCuenta.classList.add('active'); contentCuenta.classList.add('active'); }
+                    
+                    setTimeout(() => { window.openModal('popupModal'); }, 500);
+                } catch (error) { console.error("Error durante la búsqueda:", error); }
+            }
+        });
+        
+        // Acordeones Histórica
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const content = this.nextElementSibling; const icon = this.querySelector('i');
+                if(content && icon) {
+                    if(content.style.display === "none" || content.style.display === "") {
+                        content.style.display = "block"; icon.classList.remove("fa-caret-right"); icon.classList.add("fa-caret-down");
+                    } else {
+                        content.style.display = "none"; icon.classList.remove("fa-caret-down"); icon.classList.add("fa-caret-right");
+                    }
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
